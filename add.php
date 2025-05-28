@@ -2,6 +2,7 @@
 include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get data from form
     $id = $_POST['id'];
     $name = $_POST['name'];
     $position = $_POST['position'];
@@ -11,7 +12,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $food_allowance = $_POST['food_allowance'];
     $lodging_address = $_POST['lodging_address'] ?? null;
 
-    $sql = "INSERT INTO employee_info (id, name, position, status, deductions, board_lodging, food_allowance,lodging_address)
+    // Check if the ID already exists
+    $check_sql = "SELECT COUNT(*) FROM employee_info WHERE id = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("s", $id);
+    $check_stmt->execute();
+    $check_stmt->bind_result($id_count);
+    $check_stmt->fetch();
+    $check_stmt->close();
+
+    if ($id_count > 0) {
+        // If ID exists, alert and stop execution
+        echo "<script>alert('Error: Employee ID is already in use.'); window.history.back();</script>";
+        exit();
+    }
+
+    // If ID does not exist, proceed with inserting the record
+    $sql = "INSERT INTO employee_info (id, name, position, status, deductions, board_lodging, food_allowance, lodging_address)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssssssss", $id, $name, $position, $status, $deductions, $board_lodging, $food_allowance, $lodging_address);
@@ -24,6 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html>

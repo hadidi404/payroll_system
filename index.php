@@ -1,159 +1,133 @@
 <?php
-include 'db.php'; // Connect to database
+// Start the session (for storing login status if needed)
+session_start();
 
-// Fetch employees from the database
-$sql = "SELECT * FROM `employee_info`";
-$result = $conn->query($sql);
+// Check if the user is already logged in (Optional)
+if (isset($_SESSION['username'])) {
+    header('Location: dashboard.php'); // Redirect to dashboard if logged in
+    exit();
+}
+
+// Handle the login logic (this should be improved with better validation and security like hashed passwords)
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get the login credentials from the POST request
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Sample credentials (you should replace this with a database check)
+    $valid_username = "admin";  // Example username
+    $valid_password = "password123";  // Example password
+
+    // Check if the entered credentials match the valid ones
+    if ($username === $valid_username && $password === $valid_password) {
+        // Set session variable and redirect to dashboard
+        $_SESSION['username'] = $username;
+        header('Location: dashboard.php');  // Replace with your desired page
+        exit();
+    } else {
+        $error_message = "Invalid username or password.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Employee List</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="dashboard.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .login-container img {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-container button:hover {
+            background-color: #218838;
+        }
+
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+        }
+
+        .login-container a {
+            display: block;
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .login-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-<div class="circle small"></div>
-<div class="circle small two"></div>
-<div class="circle medium"></div>
-<div class="circle medium three"></div>
-<div class="circle large"></div>
+<div class="login-container">
+    <!-- Replace the logo image URL with your actual logo -->
+    <img src="logo.png" alt="Logo"> 
+    <h2>Login</h2>
+    
+    <!-- Display error message if credentials are wrong -->
+    <?php if (isset($error_message)): ?>
+        <div class="error-message"><?php echo $error_message; ?></div>
+    <?php endif; ?>
 
-<div id="header_container">
-  <div id="header_text" class="controls">
-    <img src="logo.png" alt="Company Logo" class="logo">
-    <h1 id="the_text">Employee List</h1>
-  </div>
-  <div id="btn_actions">
-    <div class="icon_label">
-      <a id="add_btn" href="add.php" class="icon_btn">
-        <i id="add_icon" class="fa-solid fa-user-plus fa-2x"></i>
-      </a>
-      <span>Add</span>
-    </div>
-    <div class="icon_label">
-      <button id="edit_btn" class="icon_btn" onclick="editSelected()">
-        <i class="fa-solid fa-user-pen fa-2x"></i>
-      </button>
-      <span>Edit</span>
-    </div>
-    <div class="icon_label">
-      <button id="delete_btn" class="icon_btn" onclick="deleteSelected()">
-        <i class="fa-solid fa-user-slash fa-2x"></i>
-      </button>
-      <span>Delete</span>
-    </div>
-
-    <!-- Export dropdown hidden until clicked -->
-    <form method="POST" action="export.php" style="display:inline;" onsubmit="return validateExport()">
-      <div id="export-options" style="display:none; margin-top:10px;">
-        <select name="format" id="export-format" required>
-          <option value="">-- Select Format --</option>
-          <option value="csv">CSV</option>
-          <option value="excel">Excel</option>
-        </select>
-        <button type="submit" class="btn export-btn">OK</button>
-      </div>
+    <!-- Login Form -->
+    <form method="POST" action="">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
     </form>
-    <div class="icon_label">
-      <button id="export_btn" class="btn export-btn" onclick="showExportOptions()">
-        <i class="fa-solid fa-file-export fa-2x"></i>
-      </button>
-      <span>Export</span>
-    </div>
-  </div>
+
+    <a href="#">Forgot Password?</a> <!-- Link to a password reset page (optional) -->
 </div>
-
-
-<?php if ($result->num_rows > 0): ?>
-<form id="employee-form">
-  <table>
-    <thead>
-      <tr>
-        <th>Select</th>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Position</th>
-        <th>Status</th>
-        <th>Board & Lodging</th>
-        <th>Food Allowance</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php while($row = $result->fetch_assoc()): ?>
-      <tr>
-        <td><input type="radio" name="selected_id" value="<?= $row['id'] ?>"></td>
-        <td><?= htmlspecialchars($row['id']) ?></td>
-        <td><?= htmlspecialchars($row['name']) ?></td>
-        <td><?= htmlspecialchars($row['position']) ?></td>
-        <td><?= htmlspecialchars($row['status']) ?></td>
-        <td>
-  <?php if ($row['board_lodging'] === 'Yes'): ?>
-    <?= htmlspecialchars($row['lodging_address']) ?>
-  <?php else: ?>
-    No
-  <?php endif; ?>
-</td>
-        <td><?= htmlspecialchars($row['food_allowance']) ?></td>
-      </tr>
-      <?php endwhile; ?>
-    </tbody>
-  </table>
-</form>
-<?php else: ?>
-  <p style="text-align:center;">No employees found.</p>
-<?php endif; ?>
-
-<script>
-  function getSelectedId() {
-    const radios = document.getElementsByName('selected_id');
-    for (let i = 0; i < radios.length; i++) {
-      if (radios[i].checked) {
-        return radios[i].value;
-      }
-    }
-    return null;
-  }
-
-  function editSelected() {
-    const selectedId = getSelectedId();
-    if (selectedId) {
-      window.location.href = `edit.php?id=${selectedId}`;
-    } else {
-      alert('Please select an employee to edit.');
-    }
-  }
-
-  function deleteSelected() {
-    const selectedId = getSelectedId();
-    if (selectedId) {
-      const confirmDelete = confirm('Are you sure you want to delete this employee?');
-      if (confirmDelete) {
-        window.location.href = `delete.php?id=${selectedId}`;
-      }
-    } else {
-      alert('Please select an employee to remove.');
-    }
-  }
-
-  function showExportOptions() {
-    document.getElementById('export-options').style.display = 'inline-block';
-  }
-
-  function validateExport() {
-    const format = document.getElementById('export-format').value;
-    if (!format) {
-      alert('Please select a format (CSV or Excel).');
-      return false;
-    }
-    return true;
-  }
-</script>
 
 </body>
 </html>
