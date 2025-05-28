@@ -1,0 +1,172 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+}
+
+span{
+  font-family: "Montserrat", sans-serif;
+}
+
+h1{
+  font-family: "Montserrat", sans-serif;
+}
+
+.logo {
+  margin-left: -80px;
+  margin-right: 20px;
+  margin-top: 6px;
+  width: 70px;       /* adjust as needed */
+  height: 70px;      /* same as width for a circle */
+  border-radius: 50%; /* makes it round */
+  object-fit: cover;  /* ensures image fills the circle */
+  object-position: 20% center;
+  border: 2px solid #000000; /* optional border */
+}
+
+
+#header_text{
+  display: flex;
+  height: auto;
+  width: fit-content;
+}
+
+#the_text {
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+
+#btn_actions{
+  display: flex;
+  margin-left: 700px;
+  gap: 20px;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background-color: #024eff;   
+  z-index: -1;               
+}
+
+/* Sizes */
+.small {
+  width: 50px;
+  height: 50px;
+  top: 150px;
+  left: 50px;
+}
+
+.two{
+  width: 50px;
+  height: 50px;
+  top: 400px;
+  left: 1500px;
+}
+
+.medium {
+  width: 100px;
+  height: 100px;
+  top: 200px;
+  right: 40px;
+}
+
+.three{
+  width: 100px;
+  height: 100px;
+  top: 600px;
+  right: 90px;
+}
+
+.large {
+  width: 200px;
+  height: 200px;
+  bottom: 100px;
+  left: 60px;
+}
+
+  <title>Employee List</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f9fa; }
+    h1 { text-align: center; }
+
+    table {
+      margin: auto;
+      border-collapse: collapse;
+      width: 90%;
+      background-color: #fff;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #343a40;
+      color: #fff;
+    }
+
+    tr:nth-child(even) { background-color: #f2f2f2; }
+
+.icon_label {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;    
+  justify-content: center;
+  font-size: 10px;
+  color: #000000;
+  cursor: pointer;
+}
+
+#add_btn {
+  margin-left: 10px;
+  height: 30px;
+  cursor: pointer;
+  color: #000000;
+}
+
+#add_icon{
+  font-size: 27px;
+}
+
+#edit_btn {
+  margin-left: 10px;
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+#delete_btn {
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+#export_btn {
+  margin-left: 10px;
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.icon-btn {
+  background: none;
+  color: #003366;
+  size: 40px;
+  cursor: pointer;
+}
+
+
+#header_container {
+  display: flex;
+  height: 100px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border-bottom: 3px solid black;
+}
