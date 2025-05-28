@@ -6,14 +6,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $position = $_POST['position'];
     $status = $_POST['status'];
-    $deductions = $_POST['deductions'];
+    $deductions = isset($_POST['deductions']) ? implode(',', $_POST['deductions']) : '';
     $board_lodging = $_POST['board_lodging'];
     $food_allowance = $_POST['food_allowance'];
+    $lodging_address = $_POST['lodging_address'] ?? null;
 
-    $sql = "INSERT INTO employee_info (id, name, position, status, deductions, board_lodging, food_allowance)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO employee_info (id, name, position, status, deductions, board_lodging, food_allowance,lodging_address)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssss", $id, $name, $position, $status, $deductions, $board_lodging, $food_allowance);
+    $stmt->bind_param("ssssssss", $id, $name, $position, $status, $deductions, $board_lodging, $food_allowance, $lodging_address);
 
     if ($stmt->execute()) {
         header("Location: index.php");
@@ -81,32 +82,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label><input type="radio" name="status" value="On-Call" required> On-Call</label>
     </div>
 
-    <label for="deductions">Deductions:</label>
-    <select name="deductions" required>
-        <option value="SSS">SSS</option>
-        <option value="PhilHealth">PhilHealth</option>
-        <option value="Pag-IBIG">Pag-IBIG</option>
-        <option value="Tax">Tax</option>
-        <option value="Others">Others</option>
-    </select>
+    <label>Deductions:</label>
+<div class="toggle-group">
+    <label><input type="checkbox" name="deductions[]" value="SSS"> SSS</label>
+    <label><input type="checkbox" name="deductions[]" value="PhilHealth"> PhilHealth</label>
+    <label><input type="checkbox" name="deductions[]" value="Pag-IBIG"> Pag-IBIG</label>
+    <label><input type="checkbox" name="deductions[]" value="Tax"> Tax</label>
+    <label><input type="checkbox" name="deductions[]" value="Others"> Others</label>
+</div>
+
 
     <label>Board & Lodging:</label>
-    <div class="toggle-group">
-        <label><input type="radio" name="board_lodging" value="Yes" required> Yes</label>
-        <label><input type="radio" name="board_lodging" value="No" required> No</label>
-    </div>
+<div class="toggle-group">
+    <label><input type="radio" name="board_lodging" value="Yes" required onchange="toggleAddress(true)"> Yes</label>
+    <label><input type="radio" name="board_lodging" value="No" required onchange="toggleAddress(false)"> No</label>
+</div>
+
+<div id="addressField" style="display:none; margin-top:10px;">
+    <label for="lodging_address">Lodging Address:</label>
+    <input type="text" name="lodging_address" id="lodging_address">
+</div>
 
     <label for="food_allowance">Food Allowance:</label>
     <select name="food_allowance" required>
-        <option value="Full">Full</option>
-        <option value="Partial">Partial</option>
         <option value="None">None</option>
+        <option value="Partial">Partial</option>
+        <option value="Full">Full</option>
     </select>
 
     <button type="submit" class="submit-btn">Add Employee</button>
 </form>
 
 <a href="index.php">← Back to Employee List</a>
+
+<script>
+function toggleAddress(show) {
+    const addressField = document.getElementById('addressField');
+    if (show) {
+        addressField.style.display = 'block';
+        document.getElementById('lodging_address').setAttribute('required', 'required');
+    } else {
+        addressField.style.display = 'none';
+        document.getElementById('lodging_address').removeAttribute('required');
+    }
+}
+</script>
 
 </body>
 </html>

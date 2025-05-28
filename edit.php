@@ -24,21 +24,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $position = $_POST['position'];
     $status = $_POST['status'];
-    $deductions = $_POST['deductions'];
+$deductions = isset($_POST['deductions']) ? implode(',', $_POST['deductions']) : '';
     $board_lodging = $_POST['board_lodging'];
     $food_allowance = $_POST['food_allowance'];
+    $lodging_address = $_POST['lodging_address'] ?? null;
 
     $update_sql = "UPDATE employee_info SET 
-        name = ?, 
-        position = ?, 
-        status = ?, 
-        deductions = ?, 
-        board_lodging = ?, 
-        food_allowance = ?
-        WHERE id = ?";
-        
-    $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("sssssss", $name, $position, $status, $deductions, $board_lodging, $food_allowance, $id);
+    name = ?, 
+    position = ?, 
+    status = ?, 
+    deductions = ?, 
+    board_lodging = ?, 
+    food_allowance = ?,
+    lodging_address = ?
+    WHERE id = ?";
+
+$update_stmt = $conn->prepare($update_sql);
+$update_stmt->bind_param("ssssssss", $name, $position, $status, $deductions, $board_lodging, $food_allowance, $lodging_address, $id);
 
     if ($update_stmt->execute()) {
         header("Location: index.php");
@@ -105,33 +107,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label><input type="radio" name="status" value="Permanent" <?= $employee['status'] === 'Permanent' ? 'checked' : '' ?>> Permanent</label>
         <label><input type="radio" name="status" value="On-Call" <?= $employee['status'] === 'On-Call' ? 'checked' : '' ?>> On-Call</label>
     </div>
+    <label>Deductions:</label>
+<div class="toggle-group">
+    <label><input type="checkbox" name="deductions[]" value="SSS"> SSS</label>
+    <label><input type="checkbox" name="deductions[]" value="PhilHealth"> PhilHealth</label>
+    <label><input type="checkbox" name="deductions[]" value="Pag-IBIG"> Pag-IBIG</label>
+    <label><input type="checkbox" name="deductions[]" value="Tax"> Tax</label>
+    <label><input type="checkbox" name="deductions[]" value="Others"> Others</label>
+</div>
 
-    <label for="deductions">Deductions:</label>
-    <select name="deductions" required>
-        <option value="SSS" <?= $employee['deductions'] === 'SSS' ? 'selected' : '' ?>>SSS</option>
-        <option value="PhilHealth" <?= $employee['deductions'] === 'PhilHealth' ? 'selected' : '' ?>>PhilHealth</option>
-        <option value="Pag-IBIG" <?= $employee['deductions'] === 'Pag-IBIG' ? 'selected' : '' ?>>Pag-IBIG</option>
-        <option value="Tax" <?= $employee['deductions'] === 'Tax' ? 'selected' : '' ?>>Tax</option>
-        <option value="Others" <?= $employee['deductions'] === 'Others' ? 'selected' : '' ?>>Others</option>
-    </select>
 
     <label>Board & Lodging:</label>
-    <div class="toggle-group">
-        <label><input type="radio" name="board_lodging" value="Yes" <?= $employee['board_lodging'] === 'Yes' ? 'checked' : '' ?>> Yes</label>
-        <label><input type="radio" name="board_lodging" value="No" <?= $employee['board_lodging'] === 'No' ? 'checked' : '' ?>> No</label>
-    </div>
+<div class="toggle-group">
+    <label><input type="radio" name="board_lodging" value="Yes" <?= $employee['board_lodging'] === 'Yes' ? 'checked' : '' ?> onchange="toggleAddress(true)"> Yes</label>
+    <label><input type="radio" name="board_lodging" value="No" <?= $employee['board_lodging'] === 'No' ? 'checked' : '' ?> onchange="toggleAddress(false)"> No</label>
+</div>
+
+<div id="addressField" style="display:none; margin-top:10px;">
+    <label for="lodging_address">Lodging Address:</label>
+    <input type="text" name="lodging_address" id="lodging_address" value="<?= htmlspecialchars($employee['lodging_address'] ?? '') ?>">
+</div>
+
 
     <label for="food_allowance">Food Allowance:</label>
     <select name="food_allowance" required>
-        <option value="Full" <?= $employee['food_allowance'] === 'Full' ? 'selected' : '' ?>>Full</option>
-        <option value="Partial" <?= $employee['food_allowance'] === 'Partial' ? 'selected' : '' ?>>Partial</option>
         <option value="None" <?= $employee['food_allowance'] === 'None' ? 'selected' : '' ?>>None</option>
+        <option value="Partial" <?= $employee['food_allowance'] === 'Partial' ? 'selected' : '' ?>>Partial</option>
+        <option value="Full" <?= $employee['food_allowance'] === 'Full' ? 'selected' : '' ?>>Full</option>
     </select>
 
     <button type="submit" class="submit-btn">Update Employee</button>
 </form>
 
 <a href="index.php">← Back to Employee List</a>
+
+<script>
+function toggleAddress(show) {
+    const addressField = document.getElementById('addressField');
+    const addressInput = document.getElementById('lodging_address');
+    if (show) {
+        addressField.style.display = 'block';
+        addressInput.setAttribute('required', 'required');
+    } else {
+        addressField.style.display = 'none';
+        addressInput.removeAttribute('required');
+        addressInput.value = ''; // optional: clear the value
+    }
+}
+
+// Trigger the correct state on page load
+window.onload = function () {
+    const boardLodgingYes = document.querySelector('input[name="board_lodging"][value="Yes"]');
+    toggleAddress(boardLodgingYes.checked);
+};
+</script>
 
 </body>
 </html>
