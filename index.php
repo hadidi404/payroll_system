@@ -92,7 +92,13 @@ $result = $conn->query($sql);
         <td><?= htmlspecialchars($row['name']) ?></td>
         <td><?= htmlspecialchars($row['position']) ?></td>
         <td><?= htmlspecialchars($row['status']) ?></td>
-        <td><?= htmlspecialchars($row['board_lodging']) ?></td>
+        <td>
+  <?php if ($row['board_lodging'] === 'Yes'): ?>
+    <?= htmlspecialchars($row['lodging_address']) ?>
+  <?php else: ?>
+    No
+  <?php endif; ?>
+</td>
         <td><?= htmlspecialchars($row['food_allowance']) ?></td>
       </tr>
       <?php endwhile; ?>
