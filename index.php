@@ -10,77 +10,65 @@ $result = $conn->query($sql);
 <html>
 <head>
   <title>Employee List</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f8f9fa; }
-    h1 { text-align: center; }
-
-    table {
-      margin: auto;
-      border-collapse: collapse;
-      width: 90%;
-      background-color: #fff;
-    }
-
-    th, td {
-      padding: 12px 15px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-
-    th {
-      background-color: #343a40;
-      color: #fff;
-    }
-
-    tr:nth-child(even) { background-color: #f2f2f2; }
-
-    .btn {
-      padding: 8px 16px;
-      margin: 5px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-    }
-
-    .add-btn { background-color: #28a745; text-decoration: none; display: inline-block; }
-    .edit-btn { background-color: #007bff; }
-    .delete-btn { background-color: #dc3545; }
-    .export-btn { background-color: #6c757d; }
-
-    .controls {
-      text-align: center;
-      margin: 20px;
-    }
-
-    .highlight {
-      background-color: #ffeeba !important;
-    }
-  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<h1>Employee List</h1>
+<div class="circle small"></div>
+<div class="circle small two"></div>
+<div class="circle medium"></div>
+<div class="circle medium three"></div>
+<div class="circle large"></div>
 
-<div class="controls">
-  <a href="add.php" class="btn add-btn">+ Add Employee</a>
-  
-  <button class="btn edit-btn" onclick="editSelected()">Edit</button>
-  <button class="btn delete-btn" onclick="deleteSelected()">Remove</button>
-
-  <!-- Export dropdown hidden until clicked -->
-  <form method="POST" action="export.php" style="display:inline;" onsubmit="return validateExport()">
-    <div id="export-options" style="display:none; margin-top:10px;">
-      <select name="format" id="export-format" required>
-        <option value="">-- Select Format --</option>
-        <option value="csv">CSV</option>
-        <option value="excel">Excel</option>
-      </select>
-      <button type="submit" class="btn export-btn">OK</button>
+<div id="header_container">
+  <div id="header_text" class="controls">
+    <img src="logo.png" alt="Company Logo" class="logo">
+    <h1 id="the_text">Employee List</h1>
+  </div>
+  <div id="btn_actions">
+    <div class="icon_label">
+      <a id="add_btn" href="add.php" class="icon_btn">
+        <i id="add_icon" class="fa-solid fa-user-plus fa-2x"></i>
+      </a>
+      <span>Add</span>
     </div>
-  </form>
-  <button class="btn export-btn" onclick="showExportOptions()">Export</button>
+    <div class="icon_label">
+      <button id="edit_btn" class="icon_btn" onclick="editSelected()">
+        <i class="fa-solid fa-user-pen fa-2x"></i>
+      </button>
+      <span>Edit</span>
+    </div>
+    <div class="icon_label">
+      <button id="delete_btn" class="icon_btn" onclick="deleteSelected()">
+        <i class="fa-solid fa-user-slash fa-2x"></i>
+      </button>
+      <span>Delete</span>
+    </div>
+
+    <!-- Export dropdown hidden until clicked -->
+    <form method="POST" action="export.php" style="display:inline;" onsubmit="return validateExport()">
+      <div id="export-options" style="display:none; margin-top:10px;">
+        <select name="format" id="export-format" required>
+          <option value="">-- Select Format --</option>
+          <option value="csv">CSV</option>
+          <option value="excel">Excel</option>
+        </select>
+        <button type="submit" class="btn export-btn">OK</button>
+      </div>
+    </form>
+    <div class="icon_label">
+      <button id="export_btn" class="btn export-btn" onclick="showExportOptions()">
+        <i class="fa-solid fa-file-export fa-2x"></i>
+      </button>
+      <span>Export</span>
+    </div>
+  </div>
 </div>
+
 
 <?php if ($result->num_rows > 0): ?>
 <form id="employee-form">
