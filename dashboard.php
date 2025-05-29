@@ -40,21 +40,17 @@ $result = $conn->query($sql);
     </div>
     <div class="icon_label">
       <button id="edit_btn" class="icon_btn" onclick="editSelected()">
-        <i class="fa-solid fa-user-pen fa-2x"></i>
+        <i id="i_hover" class="fa-solid fa-user-pen fa-2x"></i>
       </button>
       <span>Edit</span>
     </div>
     <div class="icon_label">
       <button id="delete_btn" class="icon_btn" onclick="deleteSelected()">
-        <i class="fa-solid fa-user-slash fa-2x"></i>
+        <i id="i_hover" class="fa-solid fa-user-slash fa-2x"></i>
       </button>
       <span>Delete</span>
-    </div>
-   <div id="logout_container" style="position:absolute; top:20px; right:20px;">
-  <a href="logout.php" class="icon_btn" title="Log out">
-    <i class="fa-solid fa-right-from-bracket fa-2x"></i>
-  </a>
-</div>
+    </div>  
+  </div>
 
 
     <!-- Export dropdown hidden until clicked -->
@@ -68,11 +64,19 @@ $result = $conn->query($sql);
         <button type="submit" class="btn export-btn">OK</button>
       </div>
     </form>
-    <div class="icon_label">
-      <button id="export_btn" class="btn export-btn" onclick="showExportOptions()">
-        <i class="fa-solid fa-file-export fa-2x"></i>
-      </button>
-      <span>Export</span>
+    <div id="second_btn_actions">
+      <div class="icon_label">
+        <button id="export_btn" class="btn export-btn" onclick="showExportOptions()">
+          <i id="i_hover" class="fa-solid fa-file-export fa-2x"></i>
+        </button>
+        <span>Export</span>
+      </div>
+      <div class="icon_label">
+        <a id="logout_btn" href="logout.php" class="icon_btn">
+          <i id="add_icon" class="fa-solid fa-right-from-bracket fa-2x"></i>
+        </a>  
+        <span>Logout</span>
+      </div>
     </div>
   </div>
 </div>

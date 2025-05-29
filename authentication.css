@@ -1,0 +1,154 @@
+body {
+margin: 0;
+font-family: 'Segoe UI', sans-serif;
+background: linear-gradient(to right, #000000, #4a4a4a, black);
+height: 100vh;
+overflow: hidden;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+input{
+  font-family: "Montserrat", sans-serif;
+}
+
+button{
+  font-family: "Montserrat", sans-serif;
+}
+
+a{
+  font-family: "Montserrat", sans-serif;
+}
+
+#parent_div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo{
+  height: 130px;
+  width: 50px; /*cant edit the picture properly*/
+  border: solid;
+}
+
+#details_form{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#elements_in_form{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input{
+  text-align: center;
+}
+
+#detail{
+  width: 320px;
+}
+
+#btn_detail{
+  width: 340px;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background-color: #024eff;   
+  z-index: -1;               
+}
+
+.small {
+  width: 50px;
+  height: 50px;
+  top: 350px;
+  left: 300px;
+}
+
+.two{
+  width: 50px;
+  height: 50px;
+  top: 500px;
+  left: 1100px;
+}
+
+.medium {
+  width: 100px;
+  height: 100px;
+  top: 280px;
+  right: 280px;
+}
+
+.three{
+  width: 100px;
+  height: 100px;
+  top: 100px;
+  right: 1050px;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(0, 0, 0);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+}
+
+.login-container img {
+  width: 100px;
+  margin-bottom: 20px;
+}
+
+.login-container input[type="text"],
+
+.login-container input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #000dff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.login-container button:hover {
+  background-color: #00089a;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 15px;
+}
+
+.login-container a {
+  display: block;
+  margin-top: 10px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-container a:hover {
+  text-decoration: underline;
+}

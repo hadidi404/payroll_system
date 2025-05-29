@@ -35,98 +35,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="authentication.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Login</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .login-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-
-        .login-container img {
-            width: 100px;
-            margin-bottom: 20px;
-        }
-
-        .login-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .login-container input[type="text"],
-        .login-container input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-
-        .login-container button {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .login-container button:hover {
-            background-color: #218838;
-        }
-
-        .error-message {
-            color: red;
-            margin-bottom: 15px;
-        }
-
-        .login-container a {
-            display: block;
-            margin-top: 10px;
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .login-container a:hover {
-            text-decoration: underline;
-        }
-    </style>
 </head>
 <body>
 
-<div class="login-container">
-    <!-- Replace the logo image URL with your actual logo -->
-    <img src="logo.png" alt="Logo"> 
-    <h2>Login</h2>
-    
-    <!-- Display error message if credentials are wrong -->
-    <?php if (isset($error_message)): ?>
-        <div class="error-message"><?php echo $error_message; ?></div>
-    <?php endif; ?>
+<div class="circle small"></div>
+<div class="circle small two"></div>
+<div class="circle medium"></div>
+<div class="circle medium three"></div>
 
-    <!-- Login Form -->
-    <form method="POST" action="">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
+<div id="parent_div">
+    <div class="login-container">
+        <!-- Replace the logo image URL with your actual logo -->
+        <img class="logo" src="logo.png" alt="Logo"> 
+        
+        <!-- Display error message if credentials are wrong -->
+        <?php if (isset($error_message)): ?>
+            <div class="error-message"><?php echo $error_message; ?></div>
+        <?php endif; ?>
 
-    <a href="#">Forgot Password?</a> <!-- Link to a password reset page (optional) -->
+        <!-- Login Form -->
+        <form id="details_form" method="POST" action="">
+            <div id="elements_in_form">
+                <input id="detail" type="text" name="username" placeholder="Username" required>
+            </div>
+            <div id="elements_in_form">
+                <input id="detail" type="password" name="password" placeholder="Password" required>
+            </div>
+            <div id="elements_in_form">
+                <button id="btn_detail" type="submit">Login</button>
+            </div>
+        </form>
+
+        <a href="#">Forgot Password?</a>
+    </div>
 </div>
 
 </body>
