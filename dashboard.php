@@ -49,24 +49,9 @@ $result = $conn->query($sql);
         <i id="i_hover" class="fa-solid fa-user-slash fa-2x"></i>
       </button>
       <span>Delete</span>
-    </div>  
-  </div>
-
-
-    <!-- Export dropdown hidden until clicked -->
-    <form method="POST" action="export.php" style="display:inline;" onsubmit="return validateExport()">
-      <div id="export-options" style="display:none; margin-top:10px;">
-        <select name="format" id="export-format" required>
-          <option value="">-- Select Format --</option>
-          <option value="csv">CSV</option>
-          <option value="excel">Excel</option>
-        </select>
-        <button type="submit" class="btn export-btn">OK</button>
-      </div>
-    </form>
-    <div id="second_btn_actions">
-      <div class="icon_label">
-        <button id="export_btn" class="btn export-btn" onclick="showExportOptions()">
+    </div>
+       <div class="icon_label">
+        <button id="export_btn" class="btn export-btn" onclick="export()">
           <i id="i_hover" class="fa-solid fa-file-export fa-2x"></i>
         </button>
         <span>Export</span>
@@ -77,7 +62,11 @@ $result = $conn->query($sql);
         </a>  
         <span>Logout</span>
       </div>
-    </div>
+  </div>
+
+
+    <form method="POST" action="export.php" style="display:inline;" onsubmit="return validateExport()">
+    </form>
   </div>
 </div>
 
@@ -153,7 +142,7 @@ $result = $conn->query($sql);
     }
   }
 
-  function showExportOptions() {
+  function export() {
     document.getElementById('export-options').style.display = 'inline-block';
   }
 
