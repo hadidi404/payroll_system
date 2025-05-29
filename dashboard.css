@@ -189,3 +189,7 @@ h1 { text-align: center; }
   width: 100%;
   border-bottom: 3px solid black;
 }
+
+.toggle-group > div {
+  margin-bottom: 10px;
+}
