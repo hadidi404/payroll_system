@@ -22,16 +22,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $check_stmt->close();
 
     if ($id_count > 0) {
-        // If ID exists, alert and stop execution
         echo "<script>alert('Error: Employee ID is already in use.'); window.history.back();</script>";
         exit();
     }
 
-    // If ID does not exist, proceed with inserting the record
-    $sql = "INSERT INTO employee_info (id, name, position, status, deductions, board_lodging, food_allowance, lodging_address)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Insert record
+    $sql = "INSERT INTO employee_info (id, name, position, status, deductions, board_lodging, food_allowance, lodging_address,sss,philhealth,pagibig,tax)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sss = isset($_POST['sss_amount']) ? $_POST['sss_amount'] : null;  
+    $philhealth = isset($_POST['philhealth_amount']) ? $_POST['philhealth_amount'] : null;
+    $pagibig = isset($_POST['pagibig_amount']) ? $_POST['pagibig_amount'] : null;
+    $tax = isset($_POST['tax_amount']) ? $_POST['tax_amount'] : null;
+    if ($board_lodging === 'No') {
+        $lodging_address = null; // Set to null if board_lodging is 'No'
+    } 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssssss", $id, $name, $position, $status, $deductions, $board_lodging, $food_allowance, $lodging_address);
+    $stmt->bind_param("ssssssssssss", $id, $name, $position, $status, $deductions, $board_lodging, $food_allowance, $lodging_address,$sss, $philhealth,$pagibig,$tax);
 
     if ($stmt->execute()) {
         header("Location: index.php");
@@ -41,8 +47,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html>
@@ -66,8 +70,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         .toggle-group {
             display: flex;
+            flex-direction: column;
             gap: 10px;
             margin-top: 4px;
+        }
+        .deduction-box {
+            margin-top: 10px;
         }
         .submit-btn {
             background-color: #28a745;
@@ -95,32 +103,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <label for="position">Position:</label>
     <input type="text" name="position" required>
 
-    <label>Status:</label>
+      <label>Status:</label>
     <div class="toggle-group">
         <label><input type="radio" name="status" value="Permanent" required> Permanent</label>
         <label><input type="radio" name="status" value="On-Call" required> On-Call</label>
     </div>
 
     <label>Deductions:</label>
-<div class="toggle-group">
-    <label><input type="checkbox" name="deductions[]" value="SSS"> SSS</label>
-    <label><input type="checkbox" name="deductions[]" value="PhilHealth"> PhilHealth</label>
-    <label><input type="checkbox" name="deductions[]" value="Pag-IBIG"> Pag-IBIG</label>
-    <label><input type="checkbox" name="deductions[]" value="Tax"> Tax</label>
-    <label><input type="checkbox" name="deductions[]" value="Others"> Others</label>
-</div>
-
+    <div class="toggle-group deduction-box">
+        <div>
+            <label><input type="checkbox" name="deductions[]" value="sss" onchange="toggleDeduction('sss')"> SSS</label>
+            <input type="number" name="sss_amount" id="sss_input" placeholder="SSS Amount" style="display:none;">
+        </div>
+        <div>
+            <label><input type="checkbox" name="deductions[]" value="philhealth" onchange="toggleDeduction('philhealth')"> PhilHealth</label>
+            <input type="number" step="0.01" name="philhealth_amount" id="philhealth_input" placeholder="PhilHealth Amount" style="display:none;">
+        </div>
+        <div>
+            <label><input type="checkbox" name="deductions[]" value="pagibig" onchange="toggleDeduction('pagibig')"> Pag-IBIG</label>
+            <input type="number" step="0.01" name="pagibig_amount" id="pagibig_input" placeholder="Pag-IBIG Amount" style="display:none;">
+        </div>
+        <div>
+            <label><input type="checkbox" name="deductions[]" value="tax" onchange="toggleDeduction('tax')"> Tax</label>
+            <input type="number" step="0.01" name="tax_amount" id="tax_input" placeholder="Tax Amount" style="display:none;">
+        </div>
+        
+        
+    </div>
 
     <label>Board & Lodging:</label>
-<div class="toggle-group">
-    <label><input type="radio" name="board_lodging" value="Yes" required onchange="toggleAddress(true)"> Yes</label>
-    <label><input type="radio" name="board_lodging" value="No" required onchange="toggleAddress(false)"> No</label>
-</div>
+    <div class="toggle-group">
+        <label><input type="radio" name="board_lodging" value="Yes" required onchange="toggleAddress(true)"> Yes</label>
+        <label><input type="radio" name="board_lodging" value="No" required onchange="toggleAddress(false)"> No</label>
+    </div>
 
-<div id="addressField" style="display:none; margin-top:10px;">
-    <label for="lodging_address">Lodging Address:</label>
-    <input type="text" name="lodging_address" id="lodging_address">
-</div>
+    <div id="addressField" style="display:none; margin-top:10px;">
+        <label for="lodging_address">Lodging Address:</label>
+        <input type="text" name="lodging_address" id="lodging_address">
+    </div>
 
     <label for="food_allowance">Food Allowance:</label>
     <select name="food_allowance" required>
@@ -143,6 +163,22 @@ function toggleAddress(show) {
     } else {
         addressField.style.display = 'none';
         document.getElementById('lodging_address').removeAttribute('required');
+    }
+}
+
+function toggleDeduction(field) {
+    const checkbox = document.querySelector(`input[type="checkbox"][name="deductions[]"][value="${field}"]`);
+    const input = document.getElementById(`${field}_input`);
+
+    if (checkbox && input) {
+        if (checkbox.checked) {
+            input.style.display = 'block';
+            input.required = true;
+        } else {
+            input.style.display = 'none';
+            input.required = false;
+            input.value = '';
+        }
     }
 }
 </script>
