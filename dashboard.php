@@ -75,7 +75,7 @@ $result = $conn->query($sql);
       <button id="export_btn" class="btn export-btn" onclick="export1()">
         <i id="i_hover" class="fa-solid fa-file-export fa-2x"></i>
       </button>
-      <span>Export</span>
+       <span>Payslip</span>
     </div>
     <div class="icon_label">
       <a id="logout_btn" href="logout.php" class="icon_btn">
@@ -174,11 +174,11 @@ $result = $conn->query($sql);
   function export1() {
     if (selectedRows.size === 1) {
       const id = Array.from(selectedRows)[0];
-      window.location.href = `export.php?id=${id}`;
+      window.location.href = `payslip.php?id=${id}`;
     } else if (selectedRows.size === 0) {
-      alert("Please select an employee to export.");
+      alert("Please select an employee to generate payslip.");
     } else {
-      alert("Please select only one employee to export.");
+      alert("Please select only one employee to generate payslip.");
     }
   }
 
