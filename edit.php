@@ -117,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div id="toggle-group-one-deductions-two">
                 <label>PhilHealth</label>
-                <input style="margin-left: 8px;" type="checkbox" name="deductions[]" value="philhealth" onchange="toggleDeduction('philhealth')" <?= in_array('philhealth', $deductionsArray) ? 'checked' : '' ?>>
+                <input type="checkbox" name="deductions[]" value="philhealth" onchange="toggleDeduction('philhealth')" <?= in_array('philhealth', $deductionsArray) ? 'checked' : '' ?>>
                 <input type="number" step="0.01" name="philhealth_amount" id="philhealth_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['philhealth']) ?>">
             </div>
             <div id="toggle-group-one-deductions-three">
