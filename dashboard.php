@@ -11,6 +11,12 @@ $result = $conn->query($sql);
 <html>
 <head>
   <title>Employee List</title>
+  <style>
+  table, td, th {
+    font-family: 'Montserrat', sans-serif;
+  }
+  </style>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="dashboard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +33,7 @@ $result = $conn->query($sql);
 
 <div id="header_container">
   <div id="header_text" class="controls">
-    <img src="logo.png" alt="Company Logo" class="logo">
+    <img src="logo_dashboard.png" alt="Company Logo" class="logo">
     <h1 id="the_text">Employee List</h1>
   </div>
 
@@ -49,9 +55,9 @@ $result = $conn->query($sql);
         <i id="i_hover" class="fa-solid fa-user-slash fa-2x"></i>
       </button>
       <span>Delete</span>
-    </div>
-       <div class="icon_label">
-        <button id="export_btn" class="btn export-btn" onclick="export()">
+    </div>  
+      <div class="icon_label">
+        <button id="export_btn" class="btn export-btn" onclick="export1()">
           <i id="i_hover" class="fa-solid fa-file-export fa-2x"></i>
         </button>
         <span>Export</span>
@@ -62,18 +68,14 @@ $result = $conn->query($sql);
         </a>  
         <span>Logout</span>
       </div>
-  </div>
-
-
-    <form method="POST" action="export.php" style="display:inline;" onsubmit="return validateExport()">
-    </form>
-  </div>
+    </div>
 </div>
+  </div> 
 
 
 <?php if ($result->num_rows > 0): ?>
 <form id="employee-form">
-  <table>
+  <table class="employee_table">
     <thead>
       <tr>
         <th>Select</th>
@@ -142,17 +144,13 @@ $result = $conn->query($sql);
     }
   }
 
-  function export() {
-    document.getElementById('export-options').style.display = 'inline-block';
-  }
-
-  function validateExport() {
-    const format = document.getElementById('export-format').value;
-    if (!format) {
-      alert('Please select a format (CSV or Excel).');
-      return false;
+  function export1() {
+    const selectedId = getSelectedId();
+    if (selectedId) {
+      window.location.href = `export.php?id=${selectedId}`;
+    } else {
+      alert('Please select an employee to export.');
     }
-    return true;
   }
 </script>
 

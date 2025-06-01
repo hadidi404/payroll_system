@@ -23,8 +23,6 @@ h1{
   border: 2px solid #000000; /* optional border */
 }
 
-
-
 #header_text{
   display: flex;
   height: auto;
@@ -39,9 +37,9 @@ h1{
 #btn_actions{
   display: flex;
   margin-left: 500px;
+  margin-right: 200px;
   gap: 20px;
 }
-
 
 .circle {
   position: absolute;
@@ -86,30 +84,36 @@ h1{
   left: 60px;
 }
 
-body { font-family: Arial, sans-serif; background: #f8f9fa; }
+
+body { 
+  font-family: 'Montserrat', sans-serif; 
+  background: #f8f9fa; }
+  
 h1 { text-align: center; }
 
-  table {
-    margin-top: 50px;
-    margin-left: auto;
-    margin-right: auto;
-    border-collapse: collapse;
-    width: 90%;
-    background-color: #fff;
-  }
+table {
+  font-family: 'Montserrat', sans-serif; 
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+  width: 90%;
+  background-color: #fff;
+}
 
-  th, td {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    text-align: left;
-  }
+th, td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
 
-  th {
-    background-color: #343a40;
-    color: #fff;
-  }
+th {
+  background-color: #343a40;
+  color: #fff;
+}
 
-  tr:nth-child(even) { background-color: #f2f2f2; }
+tr:nth-child(even) { 
+  background-color: #f2f2f2; }
 
 .icon_label {
   display: flex;
@@ -188,8 +192,4 @@ h1 { text-align: center; }
   align-items: center;
   width: 100%;
   border-bottom: 3px solid black;
-}
-
-.toggle-group > div {
-  margin-bottom: 10px;
 }
