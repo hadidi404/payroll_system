@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $food_allowance = $_POST['food_allowance'];
     $lodging_address = $_POST['lodging_address'] ?? null;
 
+    // ✅ Correct field names based on form inputs
     $sss = $_POST['sss_amount'] ?? null;
     $philhealth = $_POST['philhealth_amount'] ?? null;
     $pagibig = $_POST['pagibig_amount'] ?? null;
@@ -56,7 +57,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         WHERE id = ?";
 
     $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("sssssssssssss", $name, $position, $status, $deductions, $board_lodging, $food_allowance, $lodging_address, $sss, $philhealth, $pagibig, $tax, $others, $id);
+    $update_stmt->bind_param("sssssssssssss", 
+        $name, $position, $status, $deductions, $board_lodging, $food_allowance, 
+        $lodging_address, $sss, $philhealth, $pagibig, $tax, $others, $id
+    );
 
     if ($update_stmt->execute()) {
         header("Location: index.php");
@@ -66,6 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -107,29 +112,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="toggle-group-deductions">
             <div id="toggle-group-one-deductions">
                 <label>SSS</label>
-                <input style="margin-left: 58px;" type="checkbox" name="deductions[]" value="sss" onchange="toggleDeduction('sss')">
-                <input type="number" step="0.01" name="sss_amount" id="sss_input" placeholder="Amount" style="display:none; ">
+                <input style="margin-left: 58px;" type="checkbox" name="deductions[]" value="sss" onchange="toggleDeduction('sss')" <?= in_array('sss', $deductionsArray) ? 'checked' : '' ?>>
+                <input type="number" step="0.01" name="sss_amount" id="sss_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['sss']) ?>">
             </div>
             <div id="toggle-group-one-deductions-two">
                 <label>PhilHealth</label>
-                <input type="checkbox" name="deductions[]" value="philhealth" onchange="toggleDeduction('philhealth')">
-                <input type="number" step="0.01" name="philhealth_amount" id="philhealth_input" placeholder="Amount" style="display:none;">
+                <input style="margin-left: 8px;" type="checkbox" name="deductions[]" value="philhealth" onchange="toggleDeduction('philhealth')" <?= in_array('philhealth', $deductionsArray) ? 'checked' : '' ?>>
+                <input type="number" step="0.01" name="philhealth_amount" id="philhealth_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['philhealth']) ?>">
             </div>
             <div id="toggle-group-one-deductions-three">
                 <label>Pag&#8209;IBIG</label>
-                <input style="margin-left: 17.5px;" type="checkbox" name="deductions[]" value="pagibig" onchange="toggleDeduction('pagibig')">
-                <input type="number" step="0.01" name="pagibig_amount" id="pagibig_input" placeholder="Amount" style="display:none;">
+                <input style="margin-left: 17.5px;" type="checkbox" name="deductions[]" value="pagibig" onchange="toggleDeduction('pagibig')" <?= in_array('pagibig', $deductionsArray) ? 'checked' : '' ?>>
+                <input type="number" step="0.01" name="pagibig_amount" id="pagibig_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['pagibig']) ?>">
             </div>
             <div id="toggle-group-one-deductions-four">
                 <label>Tax</label>
-                <input style="margin-left: 62px;" type="checkbox" name="deductions[]" value="tax" onchange="toggleDeduction('tax')">
-                <input type="number" step="0.01" name="tax_amount" id="tax_input" placeholder="Amount" style="display:none;">
+                <input style="margin-left: 62px;" type="checkbox" name="deductions[]" value="tax" onchange="toggleDeduction('tax')" <?= in_array('tax', $deductionsArray) ? 'checked' : '' ?>>
+                <input type="number" step="0.01" name="tax_amount" id="tax_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['tax']) ?>">
             </div>
             <div id="toggle-group-one-deductions-five">
                 <label>Others</label>
-                <input style="margin-left: 34.5px;" type="checkbox" name="deductions[]" value="others" onchange="toggleDeduction('others')"> 
-                <input type="number" step="0.01" name="others_amount" id="others_input" placeholder="Amount" style="display:none;">
-            </div>
+                <input style="margin-left: 34.5px;" type="checkbox" name="deductions[]" value="others" onchange="toggleDeduction('others')" <?= in_array('others', $deductionsArray) ? 'checked' : '' ?>> 
+                <input type="number" step="0.01" name="others_amount" id="others_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['others']) ?>">
+        </div>
         </div>
 
 
