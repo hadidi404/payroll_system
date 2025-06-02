@@ -1,21 +1,36 @@
 <?php
-include 'db.php'; // your DB connection
+include 'db.php'; // Your DB connection
 
-$id = $_GET['id'] ?? null;
+// Handle multiple or single IDs
+$ids = [];
 
-if (!$id) {
-    die("No employee ID specified.");
+if (isset($_GET['id'])) {
+    $ids[] = $_GET['id'];
+} elseif (isset($_GET['ids'])) {
+    $ids = explode(',', $_GET['ids']);
 }
 
-// Prepare and execute deletion
-$sql = "DELETE FROM employee_info WHERE id = ?";
+if (empty($ids)) {
+    die("No employee ID(s) specified.");
+}
+
+// Build dynamic placeholders (?, ?, ?) for the IN clause
+$placeholders = implode(',', array_fill(0, count($ids), '?'));
+$types = str_repeat('s', count($ids)); // Assuming IDs are strings
+
+$sql = "DELETE FROM employee_info WHERE id IN ($placeholders)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $id);
+
+if (!$stmt) {
+    die("Prepare failed: " . $conn->error);
+}
+
+$stmt->bind_param($types, ...$ids);
 
 if ($stmt->execute()) {
-    // Redirect back to list after successful deletion
-    header("Location: index.php");
+    header("Location: dashboard.php");
     exit();
 } else {
-    echo "Error deleting employee: " . $stmt->error;
+    echo "Error deleting employee(s): " . $stmt->error;
 }
+?>

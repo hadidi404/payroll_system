@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div id="parent_div">
     <div class="login-container">
         <!-- Replace the logo image URL with your actual logo -->
-        <img class="logo" src="logo.png" alt="Logo"> 
+        <img src="logo_authentication.png" alt="Logo"> 
         
         <!-- Display error message if credentials are wrong -->
         <?php if (isset($error_message)): ?>
