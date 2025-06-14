@@ -48,13 +48,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link href="add_edit.css" rel="stylesheet">
+    <link href="../css/add_edit.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Add Employee</title>
 
 </head>
 <body>
 
-<h2 style="text-align:center;">Add New Employee</h2>
+<div class="circle small"></div>
+<div class="circle small two"></div>
+<div class="circle medium"></div>
+<div class="circle medium three"></div>
+<div class="circle large"></div>
+
+<div id="header_h">
+    <a id="back" href="dashboard.php"><i class="fa-solid fa-arrow-left fa-2x"></i></a>
+    <div id="description">
+        <h2>Add New Employee</h2>
+    </div>
+</div>
 
 <div id="parent_div">
     <form id="info" method="POST">
@@ -122,11 +134,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input id="blank_text" type="radio" name="board_lodging" value="No" required onchange="toggleAddress(false)"> 
                 <label>No</label>
             </div>
-        </div>
-
-        <div id="addressField" style="display:none; margin-top:10px;">
-            <label for="lodging_address">Lodging Address:</label>
-            <input type="text" name="lodging_address" id="lodging_address">
+            <div id="address">
+                <div id="addressField" style="display:none; margin-top:10px;">
+                    <input type="text" name="lodging_address" id="lodging_address" placeholder="Address">
+                </div>  
+            </div>   
         </div>
 
         <label id="text_info" for="food_allowance">Food Allowance:</label>
@@ -138,8 +150,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <button type="submit" class="submit-btn">Add Employee</button>
     </form>
-
-<a href="dashboard.php">← Back to Employee List</a>
 
 <script>
 function toggleAddress(show) {

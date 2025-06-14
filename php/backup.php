@@ -111,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div class="login-container">
     <!-- Replace the logo image URL with your actual logo -->
-    <img src="logo.png" alt="Logo"> 
+<img src="../images/logo.png" alt="Logo">
     <h2>Login</h2>
     
     <!-- Display error message if credentials are wrong -->

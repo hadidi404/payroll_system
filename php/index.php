@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="authentication.css">
+<link rel="stylesheet" href="../css/authentication.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Login</title>
 </head>
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div id="parent_div">
     <div class="login-container">
         <!-- Replace the logo image URL with your actual logo -->
-        <img src="logo_authentication.png" alt="Logo"> 
+<img src="../images/logo_authentication.png" alt="Logo">
         
         <!-- Display error message if credentials are wrong -->
         <?php if (isset($error_message)): ?>

@@ -9,31 +9,11 @@ $result = $conn->query($sql);
 <head>
   <title>Employee List</title>
   <style>
-    table, td, th {
-      font-family: 'Montserrat', sans-serif;
-    }
-    tr.selected {
-      background-color: #cce5ff !important;
-    }
-    tr:hover {
-      cursor: pointer;
-      background-color: #f1f1f1;
-    }
-    #deselect_btn {
-      display: none;
-      margin: 10px;
-      padding: 5px 10px;
-      font-family: 'Montserrat', sans-serif;
-      background-color: #f44336;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-    }
+    
   </style>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="dashboard.css" />
+<link rel="stylesheet" href="../css/dashboard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -48,7 +28,7 @@ $result = $conn->query($sql);
 
 <div id="header_container">
   <div id="header_text" class="controls">
-    <img src="logo_dashboard.png" alt="Company Logo" class="logo">
+<img src="../images/logo.png" alt="Company Logo" class="logo">
     <h1 id="the_text">Employee List</h1>
   </div>
 
@@ -83,7 +63,9 @@ $result = $conn->query($sql);
       </a>
       <span>Logout</span>
     </div>
-        <button type="button" id="deselect_btn" onclick="deselectAll()">Deselect All</button>
+    <div>
+      <button type="button" id="deselect_btn" onclick="deselectAll()">Deselect All</button>
+    </div>
   </div>
 </div>
 

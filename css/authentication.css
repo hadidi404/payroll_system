@@ -10,7 +10,15 @@ align-items: center;
 justify-content: center;
 }
 
-input, a, button{
+input{
+  font-family: "Montserrat", sans-serif;
+}
+
+button{
+  font-family: "Montserrat", sans-serif;
+}
+
+a{
   font-family: "Montserrat", sans-serif;
 }
 
@@ -20,10 +28,10 @@ input, a, button{
   align-items: center;
 }
 
-img{
-  width: 200px;
-  height: 200px;
-  object-fit: contain;
+.logo{
+  height: 130px;
+  width: 60px; /*cant edit the picture properly*/
+  border: solid;
 }
 
 #details_form{
@@ -49,6 +57,20 @@ input{
 
 #btn_detail{
   width: 340px;
+  color: white;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: white;
+  color: #0641fb;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#btn_detail:hover {
+  background-color: #0641fb;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
 .circle {
@@ -97,6 +119,11 @@ input{
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   width: 300px;
   text-align: center;
+}
+
+.login-container img {
+  width: 100px;
+  margin-bottom: 20px;
 }
 
 .login-container input[type="text"],

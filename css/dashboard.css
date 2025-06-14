@@ -12,6 +12,35 @@ h1{
   font-family: "Montserrat", sans-serif;
 }
 
+table, td, th {
+  font-family: 'Montserrat', sans-serif;
+}
+
+tr.selected {
+  background-color: #cce5ff !important;
+}
+
+tr:hover {
+  cursor: pointer;
+  background-color: #f1f1f1;
+}
+
+#deselect_btn {
+  display: none;
+  margin: 10px;
+  padding: 5px 10px;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#deselect_btn:hover{
+  background-color: #0641fb;
+}
+
 .logo {
   margin-right: 20px;
   margin-top: 6px;
@@ -37,14 +66,15 @@ h1{
 #btn_actions{
   display: flex;
   margin-left: 500px;
-  margin-right: 200px;
+  margin-right: 50px;
   gap: 20px;
+  width: 500px;
 }
 
 .circle {
   position: absolute;
   border-radius: 50%;
-  background-color: #024eff;   
+  background-color: #0641fb;   
   z-index: -1;               
 }
 

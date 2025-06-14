@@ -41,32 +41,43 @@ $net_pay = $gross_pay - $total_deductions;
 <html>
 <head>
     <title>Payslip</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 50px; }
-        .container { max-width: 700px; margin: auto; border: 1px solid #ccc; padding: 30px; border-radius: 8px; }
-        h2 { text-align: center; margin-bottom: 30px; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
-        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ccc; }
-        .total { font-weight: bold; }
-        .export-buttons { text-align: right; margin-bottom: 20px; }
-    </style>
+<link href="../css/payslip.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
 <div class="container">
-    <div class="export-buttons">
-        <form method="post" action="export.php">
-            <input type="hidden" name="employee_id" value="<?= htmlspecialchars($employee['id']) ?>">
-            <button type="submit" name="export" value="csv">Export as CSV</button>
-            <button type="submit" name="export" value="xlsx">Export as XLSX</button>
-        </form>
+    <div id="second_container">
+        <a id="back" href="dashboard.php"><i class="fa-solid fa-arrow-left fa-2x"></i></a>
+        <div class="export-buttons">
+            <form method="post" action="export.php">
+                <input type="hidden" name="employee_id" value="<?= htmlspecialchars($employee['id']) ?>">
+                <button class="export" type="submit" name="export" value="csv">Export as CSV</button>
+                <button class="export" type="submit" name="export" value="xlsx">Export as XLSX</button>
+            </form>
+        </div>
     </div>
+    
 
     <h2>Payslip</h2>
+    <h2 id="text">AI Korean Buffet Restaurant</h2>
+    <h2 id="text">MH del pilar Burnham Legarda road, Baguio City, Philippines</h2>
 
-    <p><strong>Name:</strong> <?= htmlspecialchars($employee['name']) ?></p>
-    <p><strong>Position:</strong> <?= htmlspecialchars($employee['position']) ?></p>
-    <p><strong>Status:</strong> <?= htmlspecialchars($employee['status']) ?></p>
+    <div id="basic_info">
+        <div id="first">
+            <p><strong>ID:</strong> <?= htmlspecialchars($employee['id']) ?></p>
+            <p><strong>Name:</strong> <?= htmlspecialchars($employee['name']) ?></p>
+        </div>
+        <div id="second">
+            <p><strong>Position:</strong> <?= htmlspecialchars($employee['position']) ?></p>
+            <p><strong>Status:</strong> <?= htmlspecialchars($employee['status']) ?></p>
+        </div>
+        <div id="third">
+            <p><strong>Days Worked:</strong> <?= htmlspecialchars($employee['days_worked']) ?></p>
+            <p><strong>Hours Worked:</strong> <?= htmlspecialchars($employee['hours_worked']) ?></p>
+        </div>
+    </div>
 
     <h3>Work Details</h3>
     <table>
@@ -95,19 +106,19 @@ $net_pay = $gross_pay - $total_deductions;
     </table>
 
     <h3>Allowances</h3>
-    <p><strong>Food Allowance:</strong> <?= htmlspecialchars($employee['food_allowance']) ?></p>
+    <div class="allowance_box">
+        <p><strong>Food Allowance:</strong> <?= htmlspecialchars($employee['food_allowance']) ?></p>
 
-    <?php if ($employee['board_lodging'] === 'Yes' && !empty($employee['lodging_address'])): ?>
-        <p><strong>Board & Lodging:</strong> <?= htmlspecialchars($employee['lodging_address']) ?></p>
-    <?php else: ?>
-        <p><strong>Board & Lodging:</strong> <?= htmlspecialchars($employee['board_lodging']) ?></p>
-    <?php endif; ?>
+        <?php if ($employee['board_lodging'] === 'Yes' && !empty($employee['lodging_address'])): ?>
+            <p><strong>Board & Lodging:</strong> <?= htmlspecialchars($employee['lodging_address']) ?></p>
+        <?php else: ?>
+            <p><strong>Board & Lodging:</strong> <?= htmlspecialchars($employee['board_lodging']) ?></p>
+        <?php endif; ?>
+    </div>
 
     <h3>Net Pay</h3>
     <p><strong><?= formatCurrency($net_pay) ?></strong></p>
 
-    <br><a href="dashboard.php">← Back to Employee List</a>
 </div>
-
 </body>
 </html>

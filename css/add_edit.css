@@ -17,7 +17,68 @@ form {
 }
 
 label { 
-  display: block; }
+  display: block; 
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background-color: #0641fb;   
+  z-index: -1;               
+}
+
+/* Sizes */
+.small {
+  width: 50px;
+  height: 50px;
+  top: 150px;
+  left: 50px;
+}
+
+.two{
+  width: 50px;
+  height: 50px;
+  top: 400px;
+  left: 1500px;
+}
+
+.medium {
+  width: 100px;
+  height: 100px;
+  top: 200px;
+  right: 40px;
+}
+
+.three{
+  width: 100px;
+  height: 100px;
+  top: 600px;
+  right: 90px;
+}
+
+.large {
+  width: 200px;
+  height: 200px;
+  bottom: 100px;
+  left: 60px;
+}
+
+#header_h{
+  display: flex;
+  align-items: center;
+  height: auto;
+}
+
+#description{
+  display: flex;
+  width: 440px;
+  justify-content: center;
+}
+
+#back{
+  color: black;
+  margin-left: 470px;
+}
 
 #blank_text, select{
     width: 100%;
@@ -137,32 +198,39 @@ input[type="radio"] {
 
 #addressField{
   display: flex; 
-  flex-direction: row; 
   align-items: center;
   justify-content: center;
-  height: 43px;
-  gap: 20px;
-  width: 500px;
+}
+
+#address{
+  display: flex;
+  align-items: center;
+  height: 25px;
+  margin-top: 2px;
 }
 
 .submit-btn {
-    background-color: #0641fb;
     color: white;
     margin-top: 20px;
     padding: 10px;
     width: 100%;
-    border: none;
     border-radius: 4px;
+    border: 2px solid #0641fb;
+    background-color: white;
+    color: #0641fb;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-a{
-  color: #0641fb;
+.submit-btn:hover {
+  background-color: #0641fb;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
 #parent_div{
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
   margin-top: -10px;
 }
@@ -170,8 +238,6 @@ a{
 #info{
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 #text_info{
