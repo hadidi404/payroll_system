@@ -1,12 +1,12 @@
 <?php
 include 'db.php';
+include 'rates.php';
 
 $id = $_GET['id'] ?? null;
 if (!$id) {
     die("No ID provided.");
 }
 
-// Fetch existing employee data
 $sql = "SELECT * FROM employee_info WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $id);
@@ -18,67 +18,116 @@ if ($result->num_rows === 0) {
 }
 
 $employee = $result->fetch_assoc();
-$deductionsArray = explode(',', $employee['deductions']);
 
-// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $position = $_POST['position'];
     $status = $_POST['status'];
-    $deductions = isset($_POST['deductions']) ? implode(',', $_POST['deductions']) : '';
     $board_lodging = $_POST['board_lodging'];
-    $food_allowance = $_POST['food_allowance'];
     $lodging_address = $_POST['lodging_address'] ?? null;
+    $food_allowance = $_POST['food_allowance'];
+    $daily_wage_rate = $_POST['daily_wage_rate'];
+    $days_worked = $_POST['days_worked'];
 
-    // ✅ Correct field names based on form inputs
-    $sss = $_POST['sss_amount'] ?? null;
-    $philhealth = $_POST['philhealth_amount'] ?? null;
-    $pagibig = $_POST['pagibig_amount'] ?? null;
-    $tax = $_POST['tax_amount'] ?? null;
-    $others = $_POST['others_amount'] ?? null;
+    $gross_pay = $daily_wage_rate * $days_worked;
 
-    if ($board_lodging === 'No') {
-        $lodging_address = null;
-    }
+    $deductions = calculateDeductions($daily_wage_rate);
+    $sss_deduction = $deductions['sss_deduction'];
+    $pagibig_deduction = $deductions['pagibig_deduction'];
+    $philhealth_deduction = $deductions['philhealth_deduction'];
+
+    $total_non_taxable_deductions = $sss_deduction + $pagibig_deduction + $philhealth_deduction;
+
+    $taxable_income = $gross_pay - $total_non_taxable_deductions;
+    if ($taxable_income < 0) $taxable_income = 0;
+
+    $tax_amount = $taxable_income * 0;
+    $total_deductions = $total_non_taxable_deductions + $tax_amount;
+    $net_pay = $gross_pay - $total_deductions;
 
     $update_sql = "UPDATE employee_info SET 
         name = ?, 
         position = ?, 
         status = ?, 
-        deductions = ?, 
         board_lodging = ?, 
+        lodging_address = ?, 
         food_allowance = ?,
-        lodging_address = ?,
-        sss = ?, 
-        philhealth = ?, 
-        pagibig = ?, 
-        tax = ?,
-        others = ?
+        daily_wage_rate = ?,
+        days_worked = ?,
+        gross_pay = ?,
+        sss_deduction = ?,
+        pagibig_deduction = ?,
+        philhealth_deduction = ?,
+        taxable_income = ?,
+        tax_amount = ?,
+        net_pay = ?
         WHERE id = ?";
 
     $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("sssssssssssss", 
-        $name, $position, $status, $deductions, $board_lodging, $food_allowance, 
-        $lodging_address, $sss, $philhealth, $pagibig, $tax, $others, $id
+    $update_stmt->bind_param("sssssssdiddddddds",
+        $name, $position, $status, $board_lodging, $lodging_address, $food_allowance,
+        $daily_wage_rate, $days_worked, $gross_pay, $sss_deduction, $pagibig_deduction,
+        $philhealth_deduction, $taxable_income, $tax_amount, $net_pay, $id
     );
 
     if ($update_stmt->execute()) {
-        header("Location: index.php");
+        header("Location: dashboard.php");
         exit();
     } else {
-        echo "Error updating record: " . $update_stmt->error;
+        echo "Error updating: " . $update_stmt->error;
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Edit Employee</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-<link href="../css/add_edit.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="../css/add_edit.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        #parent_div {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        #info {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+        .column {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .column label, .column input, .column select {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .column input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+        }
+        .calculation-output {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9e9e9;
+            border-radius: 5px;
+        }
+        .calculation-output p {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
@@ -97,128 +146,108 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div id="parent_div">
     <form id="info" method="POST">
-        <div id="text_info">
+        <div class="column">
+            <h3>Basic Information</h3>
             <label for="id">Employee ID:</label>
-            <input id="blank_text" type="text" value="<?= htmlspecialchars($employee['id']) ?>" disabled>
+            <input type="text" value="<?= htmlspecialchars($employee['id']) ?>" disabled>
+            <input type="hidden" name="id" value="<?= htmlspecialchars($employee['id']) ?>">
 
             <label for="name">Full Name:</label>
-            <input id="blank_text" type="text" name="name" value="<?= htmlspecialchars($employee['name']) ?>" required>
+            <input type="text" name="name" value="<?= htmlspecialchars($employee['name']) ?>" required>
 
             <label for="position">Position:</label>
-            <input id="blank_text" type="text" name="position" value="<?= htmlspecialchars($employee['position']) ?>" required>
+            <input type="text" name="position" value="<?= htmlspecialchars($employee['position']) ?>" required>
+
+            <label>Status:</label>
+            <input type="radio" name="status" value="Permanent" <?= $employee['status'] === 'Permanent' ? 'checked' : '' ?> onchange="updateDailyWage()"> Permanent
+            <input type="radio" name="status" value="On-Call" <?= $employee['status'] === 'On-Call' ? 'checked' : '' ?> onchange="updateDailyWage()"> On-Call
+
+            <label>Board & Lodging:</label>
+            <input type="radio" name="board_lodging" value="Yes" <?= $employee['board_lodging'] === 'Yes' ? 'checked' : '' ?> onchange="toggleAddress(true)"> Yes
+            <input type="radio" name="board_lodging" value="No" <?= $employee['board_lodging'] === 'No' ? 'checked' : '' ?> onchange="toggleAddress(false)"> No
+
+            <div id="addressField" style="display:none;">
+                <input type="text" name="lodging_address" id="lodging_address" placeholder="Address" value="<?= htmlspecialchars($employee['lodging_address']) ?>">
+            </div>
+
+            <label for="food_allowance">Food Allowance:</label>
+            <select name="food_allowance" required>
+                <option value="Full" <?= $employee['food_allowance'] === 'Full' ? 'selected' : '' ?>>Full</option>
+                <option value="Partial" <?= $employee['food_allowance'] === 'Partial' ? 'selected' : '' ?>>Partial</option>
+                <option value="None" <?= $employee['food_allowance'] === 'None' ? 'selected' : '' ?>>None</option>
+            </select>
         </div>
 
-        <div class="toggle-group-lodging">
-            <label style="margin-top: 10px;" id="text_info_status">Status:</label>
-            <div id="toggle-group-one">
-                <input id="blank_text" type="radio" name="status" value="Permanent" <?= $employee['status'] === 'Permanent' ? 'checked' : '' ?>> 
-                <label>Permanent</label>
-            </div>
-            <div id="toggle-group-one">
-                <input id="blank_text" type="radio" name="status" value="On-Call" <?= $employee['status'] === 'On-Call' ? 'checked' : '' ?>> 
-                <label>On-Call</label>
+        <div class="column">
+            <h3>Payroll Details</h3>
+            <label for="daily_wage_rate">Daily Wage Rate:</label>
+            <input type="number" step="0.01" name="daily_wage_rate" id="daily_wage_rate" value="<?= htmlspecialchars($employee['daily_wage_rate']) ?>" required oninput="calculatePayroll()">
+
+            <label for="days_worked">Days Worked:</label>
+            <input type="number" step="1" name="days_worked" id="days_worked" value="<?= htmlspecialchars($employee['days_worked']) ?>" required oninput="calculatePayroll()">
+
+            <h4>Deductions (Non-Taxable)</h4>
+            <p>SSS (5%): <span id="sss_deduction_output">0.00</span></p>
+            <p>Pag-IBIG (2%): <span id="pagibig_deduction_output">0.00</span></p>
+            <p>PhilHealth (2.5%): <span id="philhealth_deduction_output">0.00</span></p>
+            <p>Total Non-Taxable Deductions: <span id="total_non_taxable_deductions_output">0.00</span></p>
+
+            <div class="calculation-output">
+                <p>Gross Pay: <span id="gross_pay_output">0.00</span></p>
+                <p>Taxable Income: <span id="taxable_income_output">0.00</span></p>
+                <p>Net Pay: <span id="net_pay_output">0.00</span></p>
             </div>
         </div>
-
-        <label id="text_info">Deductions:</label>
-        <div class="toggle-group-deductions">
-            <div id="toggle-group-one-deductions">
-                <label>SSS</label>
-                <input style="margin-left: 58px;" type="checkbox" name="deductions[]" value="sss" onchange="toggleDeduction('sss')" <?= in_array('sss', $deductionsArray) ? 'checked' : '' ?>>
-                <input type="number" step="0.01" name="sss_amount" id="sss_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['sss']) ?>">
-            </div>
-            <div id="toggle-group-one-deductions-two">
-                <label>PhilHealth</label>
-                <input type="checkbox" name="deductions[]" value="philhealth" onchange="toggleDeduction('philhealth')" <?= in_array('philhealth', $deductionsArray) ? 'checked' : '' ?>>
-                <input type="number" step="0.01" name="philhealth_amount" id="philhealth_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['philhealth']) ?>">
-            </div>
-            <div id="toggle-group-one-deductions-three">
-                <label>Pag&#8209;IBIG</label>
-                <input style="margin-left: 17.5px;" type="checkbox" name="deductions[]" value="pagibig" onchange="toggleDeduction('pagibig')" <?= in_array('pagibig', $deductionsArray) ? 'checked' : '' ?>>
-                <input type="number" step="0.01" name="pagibig_amount" id="pagibig_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['pagibig']) ?>">
-            </div>
-            <div id="toggle-group-one-deductions-four">
-                <label>Tax</label>
-                <input style="margin-left: 62px;" type="checkbox" name="deductions[]" value="tax" onchange="toggleDeduction('tax')" <?= in_array('tax', $deductionsArray) ? 'checked' : '' ?>>
-                <input type="number" step="0.01" name="tax_amount" id="tax_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['tax']) ?>">
-            </div>
-            <div id="toggle-group-one-deductions-five">
-                <label>Others</label>
-                <input style="margin-left: 34.5px;" type="checkbox" name="deductions[]" value="others" onchange="toggleDeduction('others')" <?= in_array('others', $deductionsArray) ? 'checked' : '' ?>> 
-                <input type="number" step="0.01" name="others_amount" id="others_input" placeholder="Amount" style="display:none;" value="<?= htmlspecialchars($employee['others']) ?>">
-        </div>
-        </div>
-
-
-        <div class="toggle-group-lodging">
-            <label style="margin-top: 10px;" id="text_info_lodging">Board & Lodging:</label>
-            <div id="toggle-group-one">
-                <input id="blank_text" type="radio" name="board_lodging" value="Yes" <?= $employee['board_lodging'] === 'Yes' ? 'checked' : '' ?> onchange="toggleAddress(true)"> 
-                <label>Yes</label>
-            </div>
-            <div id="toggle-group-one">
-                <input id="blank_text" type="radio" name="board_lodging" value="No" <?= $employee['board_lodging'] === 'No' ? 'checked' : '' ?> onchange="toggleAddress(false)"> 
-                <label>No</label>
-            </div>
-            <div id="address">
-                <div id="addressField" style="display:none; margin-top:10px;">
-                    <input type="text" placeholder="Address" name="lodging_address" id="lodging_address" value="<?= htmlspecialchars($employee['lodging_address'] ?? '') ?>">
-                </div>  
-            </div> 
-        </div>
-
-        <label id="text_info" for="food_allowance">Food Allowance:</label>
-        <select name="food_allowance" required>
-            <option value="None" <?= $employee['food_allowance'] === 'None' ? 'selected' : '' ?>>None</option>
-            <option value="Partial" <?= $employee['food_allowance'] === 'Partial' ? 'selected' : '' ?>>Partial</option>
-            <option value="Full" <?= $employee['food_allowance'] === 'Full' ? 'selected' : '' ?>>Full</option>
-        </select>
-
-        <button type="submit" class="submit-btn">Update Employee</button>
     </form>
-
-   
-
-    <script>
-    function toggleAddress(show) {
-        const addressField = document.getElementById('addressField');
-        const addressInput = document.getElementById('lodging_address');
-        if (show) {
-            addressField.style.display = 'flex';
-            addressInput.setAttribute('required', 'required');
-        } else {
-            addressField.style.display = 'none';
-            addressInput.removeAttribute('required');
-        }
-    }
-
-    function toggleDeduction(field) {
-        const checkbox = document.querySelector(`input[type="checkbox"][name="deductions[]"][value="${field}"]`);
-        const input = document.getElementById(`${field}_input`);
-
-        if (checkbox && input) {
-            if (checkbox.checked) {
-                input.style.display = 'block';
-                input.required = true;
-            } else {
-                input.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        }
-    }
-
-    // Initialize deduction input visibility
-    window.onload = function () {
-        toggleAddress(document.querySelector('input[name="board_lodging"][value="Yes"]').checked);
-        ['sss', 'philhealth', 'pagibig', 'tax', 'others'].forEach(field => {
-            if (document.querySelector(`input[type="checkbox"][name="deductions[]"][value="${field}"]`).checked) {
-                toggleDeduction(field);
-            }
-        });
-    };
-    </script>
+    <button type="submit" class="submit-btn" form="info">Update Employee</button>
 </div>
+
+<script>
+function toggleAddress(show) {
+    const field = document.getElementById('addressField');
+    const input = document.getElementById('lodging_address');
+    field.style.display = show ? 'block' : 'none';
+    if (show) input.required = true;
+    else input.required = false;
+}
+
+function updateDailyWage() {
+    const wage = document.getElementById('daily_wage_rate');
+    const status = document.querySelector('input[name="status"]:checked').value;
+    if (status === 'Permanent') wage.value = 800.00;
+    else wage.value = '';
+    calculatePayroll();
+}
+
+function calculatePayroll() {
+    const dailyWage = parseFloat(document.getElementById('daily_wage_rate').value) || 0;
+    const daysWorked = parseFloat(document.getElementById('days_worked').value) || 0;
+    const gross = dailyWage * daysWorked;
+
+    const monthlyBase = dailyWage * 20;
+    const sss = monthlyBase * 0.05;
+    const pagibig = monthlyBase * 0.02;
+    const philhealth = monthlyBase * 0.025;
+
+    const totalDeductions = sss + pagibig + philhealth;
+    const taxableIncome = Math.max(0, gross - totalDeductions);
+    const tax = 0;
+    const netPay = gross - totalDeductions - tax;
+
+    document.getElementById('sss_deduction_output').textContent = sss.toFixed(2);
+    document.getElementById('pagibig_deduction_output').textContent = pagibig.toFixed(2);
+    document.getElementById('philhealth_deduction_output').textContent = philhealth.toFixed(2);
+    document.getElementById('total_non_taxable_deductions_output').textContent = totalDeductions.toFixed(2);
+    document.getElementById('gross_pay_output').textContent = gross.toFixed(2);
+    document.getElementById('taxable_income_output').textContent = taxableIncome.toFixed(2);
+    document.getElementById('net_pay_output').textContent = netPay.toFixed(2);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    toggleAddress(document.querySelector('input[name="board_lodging"]:checked').value === 'Yes');
+    updateDailyWage();
+});
+</script>
 
 </body>
 </html>

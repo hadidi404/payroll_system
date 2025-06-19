@@ -1,16 +1,22 @@
 <?php
 include 'db.php'; // your DB connection
 
-$id = $_GET['id'] ?? null;
+$ids_string = $_GET['ids'] ?? null;
 
-if (!$id) {
+if (!$ids_string) {
     die("No employee ID specified.");
 }
 
+$ids = explode(',', $ids_string);
+$placeholders = implode(',', array_fill(0, count($ids), '?'));
+
 // Prepare and execute deletion
-$sql = "DELETE FROM employee_info WHERE id = ?";
+$sql = "DELETE FROM employee_info WHERE id IN ($placeholders)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $id);
+
+// Dynamically bind parameters
+$types = str_repeat('s', count($ids)); // Assuming IDs are strings, adjust if they are integers ('i')
+$stmt->bind_param($types, ...$ids);
 
 if ($stmt->execute()) {
     // Redirect back to list after successful deletion
