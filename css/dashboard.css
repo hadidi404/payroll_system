@@ -65,54 +65,59 @@ tr:hover {
 
 #btn_actions{
   display: flex;
-  margin-left: 500px;
-  margin-right: 50px;
+  margin-left: 800px;
   gap: 20px;
-  width: 500px;
+  width: fit-content; /* Adjust width to fit content */
 }
 
-.circle {
-  position: absolute;
-  border-radius: 50%;
-  background-color: #0641fb;   
-  z-index: -1;               
-}
-
-/* Sizes */
-.small {
-  width: 50px;
-  height: 50px;
-  top: 150px;
-  left: 50px;
-}
-
-.two{
-  width: 50px;
-  height: 50px;
-  top: 400px;
-  left: 1500px;
-}
-
-.medium {
-  width: 100px;
+#header_container {
+  display: flex;
   height: 100px;
-  top: 200px;
-  right: 40px;
+  align-items: center;
+  width: 100%;
+  border-bottom: 3px solid black;
 }
 
-.three{
-  width: 100px;
-  height: 100px;
-  top: 600px;
-  right: 90px;
+.action-edit-btn, .action-delete-btn {
+  display: inline-block; /* Allows setting width and height */
+  width: 70px; /* Fixed width */
+  height: 25px; /* Fixed height */
+  line-height: 25px; /* Vertically center text */
+  padding: 0; /* Remove padding as height is fixed */ 
+  border: 1px solid; /* Thinner border */
+  background-color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none; /* Ensure links don't have underlines */
+  font-weight: normal; /* Not bold */
 }
 
-.large {
-  width: 200px;
-  height: 200px;
-  bottom: 100px;
-  left: 60px;
+.action-edit-btn {
+  color: #0641fb;
+  border-color: #0641fb;
+  text-align: center; /* Center the text within the button */
+  margin-right: 10px; /* Add a gap of 10px to the right */
 }
+
+.action-edit-btn:hover {
+  background-color: #0641fb;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+.action-delete-btn {
+  color: red;
+  border-color: red;
+  text-align: center; /* Center the text within the button */
+}
+
+.action-delete-btn:hover {
+  background-color: red;
+  color: white;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
 
 
 body { 
@@ -135,6 +140,11 @@ th, td {
   padding: 12px 15px;
   border: 1px solid #ddd;
   text-align: left;
+}
+
+/* Center content in the last column (Actions column) */
+table.employee_table td:last-child {
+  text-align: center;
 }
 
 th {

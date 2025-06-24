@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: authentication.php");
+    exit();
+}
+
 include 'db.php';
 
 $id = $_GET['id'] ?? null;
@@ -54,7 +60,7 @@ $net_pay = $gross_pay - $total_deductions;
             <form method="post" action="export.php">
                 <input type="hidden" name="employee_id" value="<?= htmlspecialchars($employee['id']) ?>">
                 <button class="export" type="submit" name="export" value="csv">Export as CSV</button>
-                <button class="export" type="submit" name="export" value="xlsx">Export as XLSX</button>
+                
             </form>
         </div>
     </div>
@@ -84,7 +90,7 @@ $net_pay = $gross_pay - $total_deductions;
         <tr><td>Days Worked</td><td><?= htmlspecialchars($employee['days_worked']) ?></td></tr>
         <tr><td>Hours Worked</td><td><?= htmlspecialchars($employee['hours_worked']) ?></td></tr>
         <tr><td>Overtime Hours</td><td><?= htmlspecialchars($employee['overtime_hours']) ?></td></tr>
-        <tr><td>Hourly Rate</td><td><?= formatCurrency($employee['hourly_rate']) ?></td></tr>
+        <tr><td>Daily Wage Rate</td><td><?= formatCurrency($employee['daily_wage_rate']) ?></td></tr>
         <tr><td>Overtime Rate</td><td><?= formatCurrency($employee['overtime_rate']) ?></td></tr>
         <tr><td><strong>Gross Pay</strong></td><td><strong><?= formatCurrency($gross_pay) ?></strong></td></tr>
     </table>

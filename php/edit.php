@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: authentication.php");
+    exit();
+}
+
 include 'db.php';
 include 'rates.php';
 
@@ -26,23 +32,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $board_lodging = $_POST['board_lodging'];
     $lodging_address = $_POST['lodging_address'] ?? null;
     $food_allowance = $_POST['food_allowance'];
-    $daily_wage_rate = $_POST['daily_wage_rate'];
-    $days_worked = $_POST['days_worked'];
+    $daily_wage_rate = (float)$_POST['daily_wage_rate'];
+    $days_worked = (float)$_POST['days_worked'];
 
     $gross_pay = $daily_wage_rate * $days_worked;
 
-    $deductions = calculateDeductions($daily_wage_rate);
-    $sss_deduction = $deductions['sss_deduction'];
-    $pagibig_deduction = $deductions['pagibig_deduction'];
-    $philhealth_deduction = $deductions['philhealth_deduction'];
-
-    $total_non_taxable_deductions = $sss_deduction + $pagibig_deduction + $philhealth_deduction;
+    $total_non_taxable_deductions = $employee['sss'] + $employee['philhealth'] + $employee['pagibig'];
 
     $taxable_income = $gross_pay - $total_non_taxable_deductions;
     if ($taxable_income < 0) $taxable_income = 0;
 
-    $tax_amount = $taxable_income * 0;
-    $total_deductions = $total_non_taxable_deductions + $tax_amount;
+    $tax = $taxable_income * 0;
+    $total_deductions = $total_non_taxable_deductions + $tax;
     $net_pay = $gross_pay - $total_deductions;
 
     $update_sql = "UPDATE employee_info SET 
@@ -55,19 +56,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         daily_wage_rate = ?,
         days_worked = ?,
         gross_pay = ?,
-        sss_deduction = ?,
-        pagibig_deduction = ?,
-        philhealth_deduction = ?,
+        sss = ?,
+        philhealth = ?,
+        pagibig = ?,
         taxable_income = ?,
-        tax_amount = ?,
+        tax = ?,
         net_pay = ?
         WHERE id = ?";
 
     $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("sssssssdiddddddds",
+    $update_stmt->bind_param("sssssssdiddddds",
         $name, $position, $status, $board_lodging, $lodging_address, $food_allowance,
-        $daily_wage_rate, $days_worked, $gross_pay, $sss_deduction, $pagibig_deduction,
-        $philhealth_deduction, $taxable_income, $tax_amount, $net_pay, $id
+        $daily_wage_rate, $days_worked, $gross_pay, $employee['sss'], $employee['philhealth'],
+        $employee['pagibig'], $taxable_income, $tax, $net_pay, $id
     );
 
     if ($update_stmt->execute()) {
@@ -82,40 +83,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Edit Employee</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <link href="../css/add_edit.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="../css/edit.css" rel="stylesheet"> <!-- Changed to edit.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Edit Employee</title>
     <style>
+        /* Basic two-column layout */
         #parent_div {
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            gap: 20px;
-            flex-wrap: wrap;
+            align-items: flex-start; /* Align items to the top */
+            gap: 20px; /* Space between columns */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
         }
         #info {
             display: flex;
-            flex-direction: row;
-            gap: 20px;
-            width: 100%;
-            max-width: 900px;
+            flex-direction: row; /* Arrange children in a row */
+            gap: 20px; /* Space between the two main columns */
+            width: 100%; /* Take full width of parent_div */
+            max-width: 900px; /* Limit overall width */
         }
         .column {
-            flex: 1;
-            min-width: 300px;
+            flex: 1; /* Each column takes equal space */
+            min-width: 300px; /* Minimum width for columns before wrapping */
             padding: 20px;
-            border: 1px solid #ccc;
+            border: 1px solid #ccc; /* Optional: for visualization */
             border-radius: 8px;
             background-color: #f9f9f9;
         }
-        .column label, .column input, .column select {
+        .column label, .column input, .column select, .column .toggle-group-lodging {
             display: block;
             margin-bottom: 10px;
         }
         .column input[type="radio"] {
+            display: inline-block;
             width: auto;
             margin-right: 5px;
+        }
+        .column .toggle-group-lodging label {
+            display: inline; /* For radio button labels */
+        }
+        .column #addressField {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+        }
+        .column #blank_text, .column select {
+            width: calc(100% - 22px); /* Adjust for padding/border */
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .column h3 {
+            margin-top: 0;
+            color: #333;
         }
         .calculation-output {
             margin-top: 15px;
@@ -131,12 +151,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
-<div class="circle small"></div>
-<div class="circle small two"></div>
-<div class="circle medium"></div>
-<div class="circle medium three"></div>
-<div class="circle large"></div>
-
 <div id="header_h">
     <a id="back" href="dashboard.php"><i class="fa-solid fa-arrow-left fa-2x"></i></a>
     <div id="description">
@@ -146,31 +160,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <div id="parent_div">
     <form id="info" method="POST">
+        <!-- Column 1: Basic Employee Info -->
         <div class="column">
             <h3>Basic Information</h3>
             <label for="id">Employee ID:</label>
-            <input type="text" value="<?= htmlspecialchars($employee['id']) ?>" disabled>
+            <input id="blank_text" type="text" value="<?= htmlspecialchars($employee['id']) ?>" disabled>
             <input type="hidden" name="id" value="<?= htmlspecialchars($employee['id']) ?>">
 
             <label for="name">Full Name:</label>
-            <input type="text" name="name" value="<?= htmlspecialchars($employee['name']) ?>" required>
+            <input id="blank_text" type="text" name="name" value="<?= htmlspecialchars($employee['name']) ?>" required>
 
             <label for="position">Position:</label>
-            <input type="text" name="position" value="<?= htmlspecialchars($employee['position']) ?>" required>
+            <input id="blank_text" type="text" name="position" value="<?= htmlspecialchars($employee['position']) ?>" required>
 
-            <label>Status:</label>
-            <input type="radio" name="status" value="Permanent" <?= $employee['status'] === 'Permanent' ? 'checked' : '' ?> onchange="updateDailyWage()"> Permanent
-            <input type="radio" name="status" value="On-Call" <?= $employee['status'] === 'On-Call' ? 'checked' : '' ?> onchange="updateDailyWage()"> On-Call
-
-            <label>Board & Lodging:</label>
-            <input type="radio" name="board_lodging" value="Yes" <?= $employee['board_lodging'] === 'Yes' ? 'checked' : '' ?> onchange="toggleAddress(true)"> Yes
-            <input type="radio" name="board_lodging" value="No" <?= $employee['board_lodging'] === 'No' ? 'checked' : '' ?> onchange="toggleAddress(false)"> No
-
-            <div id="addressField" style="display:none;">
-                <input type="text" name="lodging_address" id="lodging_address" placeholder="Address" value="<?= htmlspecialchars($employee['lodging_address']) ?>">
+            <div class="toggle-group-lodging">
+                <label style="margin-top: 10px;" id="text_info_status">Status:</label>
+                <div id="toggle-group-one">
+                    <label>Permanent</label>
+                    <input style="margin-left: -80px;" id="blank_text" type="radio" name="status" value="Permanent" <?= $employee['status'] === 'Permanent' ? 'checked' : '' ?> required onchange="updateDailyWage()"> 
+                </div>
+                <div id="toggle-group-one">
+                    <label>On&#8209;Call</label>
+                    <input style="margin-left: -48px;" id="blank_text" type="radio" name="status" value="On-Call" <?= $employee['status'] === 'On-Call' ? 'checked' : '' ?> required onchange="updateDailyWage()"> 
+                </div>
             </div>
 
-            <label for="food_allowance">Food Allowance:</label>
+            <div class="toggle-group-lodging">
+                <label style="margin-top: 10px;" id="text_info_lodging">Board & Lodging:</label>
+                <div id="yes_section">
+                    <div id="toggle-group-one">
+                        <label>Yes</label>
+                        <input style="margin-left: 161px;" id="blank_text" type="radio" name="board_lodging" value="Yes" <?= $employee['board_lodging'] === 'Yes' ? 'checked' : '' ?> required onchange="toggleAddress(true)"> 
+                    </div>
+                    <div id="addressField" style="display:none; margin-top:10px;">
+                        <input id="blank_text" type="text" name="lodging_address" id="lodging_address" placeholder="Address" value="<?= htmlspecialchars($employee['lodging_address']) ?>" style="width: calc(100% + 8px);">
+                    </div>  
+                </div>    
+                <div id="toggle-group-one">
+                    <label>No</label>
+                    <input style="margin-left: -7px;" id="blank_text" type="radio" name="board_lodging" value="No" <?= $employee['board_lodging'] === 'No' ? 'checked' : '' ?> required onchange="toggleAddress(false)"> 
+                </div> 
+            </div>
+
+            <label id="text_info" for="food_allowance">Food Allowance:</label>
             <select name="food_allowance" required>
                 <option value="Full" <?= $employee['food_allowance'] === 'Full' ? 'selected' : '' ?>>Full</option>
                 <option value="Partial" <?= $employee['food_allowance'] === 'Partial' ? 'selected' : '' ?>>Partial</option>
@@ -178,13 +210,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </select>
         </div>
 
+        <!-- Column 2: Rates and Calculations -->
         <div class="column">
             <h3>Payroll Details</h3>
-            <label for="daily_wage_rate">Daily Wage Rate:</label>
-            <input type="number" step="0.01" name="daily_wage_rate" id="daily_wage_rate" value="<?= htmlspecialchars($employee['daily_wage_rate']) ?>" required oninput="calculatePayroll()">
+            <label for="daily_wage_rate">Daily Minimum Wage Rate:</label>
+            <input id="blank_text" type="number" step="0.01" name="daily_wage_rate" id="daily_wage_rate" value="<?= htmlspecialchars($employee['daily_wage_rate']) ?>" required oninput="calculatePayroll()">
 
             <label for="days_worked">Days Worked:</label>
-            <input type="number" step="1" name="days_worked" id="days_worked" value="<?= htmlspecialchars($employee['days_worked']) ?>" required oninput="calculatePayroll()">
+            <input id="blank_text" type="number" step="1" name="days_worked" id="days_worked" value="<?= htmlspecialchars($employee['days_worked']) ?>" required oninput="calculatePayroll()">
 
             <h4>Deductions (Non-Taxable)</h4>
             <p>SSS (5%): <span id="sss_deduction_output">0.00</span></p>
@@ -199,54 +232,93 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
     </form>
-    <button type="submit" class="submit-btn" form="info">Update Employee</button>
+    <div id="submit_div">
+        <button type="submit" class="submit-btn" form="info">Update Employee</button>
+    </div>
 </div>
 
 <script>
 function toggleAddress(show) {
-    const field = document.getElementById('addressField');
-    const input = document.getElementById('lodging_address');
-    field.style.display = show ? 'block' : 'none';
-    if (show) input.required = true;
-    else input.required = false;
+    const addressField = document.getElementById('addressField');
+    const lodgingAddressInput = document.getElementById('lodging_address');
+    if (show) {
+        addressField.style.display = 'flex';
+        lodgingAddressInput.setAttribute('required', 'required');
+    } else {
+        addressField.style.display = 'none';
+        lodgingAddressInput.removeAttribute('required');
+    }
 }
 
 function updateDailyWage() {
-    const wage = document.getElementById('daily_wage_rate');
-    const status = document.querySelector('input[name="status"]:checked').value;
-    if (status === 'Permanent') wage.value = 800.00;
-    else wage.value = '';
-    calculatePayroll();
+    const statusRadios = document.querySelectorAll('input[name="status"]');
+    const dailyWageInput = document.getElementById('daily_wage_rate');
+    let selectedStatus = '';
+
+    statusRadios.forEach(radio => {
+        if (radio.checked) {
+            selectedStatus = radio.value;
+        }
+    });
+
+    if (selectedStatus === 'Permanent') {
+        dailyWageInput.value = 800.00;
+    } else if (selectedStatus === 'On-Call') {
+        dailyWageInput.value = '';
+    }
+    calculatePayroll(); // Recalculate when status changes
 }
 
 function calculatePayroll() {
     const dailyWage = parseFloat(document.getElementById('daily_wage_rate').value) || 0;
     const daysWorked = parseFloat(document.getElementById('days_worked').value) || 0;
-    const gross = dailyWage * daysWorked;
 
-    const monthlyBase = dailyWage * 20;
-    const sss = monthlyBase * 0.05;
-    const pagibig = monthlyBase * 0.02;
-    const philhealth = monthlyBase * 0.025;
+    const grossPay = dailyWage * daysWorked;
 
-    const totalDeductions = sss + pagibig + philhealth;
-    const taxableIncome = Math.max(0, gross - totalDeductions);
-    const tax = 0;
-    const netPay = gross - totalDeductions - tax;
+    // Deductions (based on daily wage for simplicity, adjust if monthly basis is needed)
+    // Note: The PHP calculateDeductions function assumes monthly_salary = hour_rate * 160.
+    // For this JS, we'll use dailyWage * 20 (approx working days in a month) as a proxy for monthly basis for deductions.
+    // This needs to be consistent with the PHP side.
+    const monthlyBasisForDeductions = dailyWage * 20; // Assuming 20 working days for monthly deduction basis
 
-    document.getElementById('sss_deduction_output').textContent = sss.toFixed(2);
-    document.getElementById('pagibig_deduction_output').textContent = pagibig.toFixed(2);
-    document.getElementById('philhealth_deduction_output').textContent = philhealth.toFixed(2);
-    document.getElementById('total_non_taxable_deductions_output').textContent = totalDeductions.toFixed(2);
-    document.getElementById('gross_pay_output').textContent = gross.toFixed(2);
+    const sssDeduction = monthlyBasisForDeductions * 0.05;
+    const pagibigDeduction = monthlyBasisForDeductions * 0.02;
+    const philhealthDeduction = monthlyBasisForDeductions * 0.025;
+
+    const totalNonTaxableDeductions = sssDeduction + pagibigDeduction + philhealthDeduction;
+
+    const taxRate = 0; // Default 0%
+    let taxableIncome = grossPay - totalNonTaxableDeductions;
+    if (taxableIncome < 0) taxableIncome = 0;
+
+    const taxAmount = taxableIncome * taxRate;
+
+    const totalDeductions = totalNonTaxableDeductions + taxAmount;
+    const netPay = grossPay - totalDeductions;
+
+    document.getElementById('sss_deduction_output').textContent = sssDeduction.toFixed(2);
+    document.getElementById('pagibig_deduction_output').textContent = pagibigDeduction.toFixed(2);
+    document.getElementById('philhealth_deduction_output').textContent = philhealthDeduction.toFixed(2);
+    document.getElementById('total_non_taxable_deductions_output').textContent = totalNonTaxableDeductions.toFixed(2);
+    document.getElementById('gross_pay_output').textContent = grossPay.toFixed(2);
     document.getElementById('taxable_income_output').textContent = taxableIncome.toFixed(2);
     document.getElementById('net_pay_output').textContent = netPay.toFixed(2);
 }
 
+// Initial calculation on page load
 document.addEventListener('DOMContentLoaded', () => {
-    toggleAddress(document.querySelector('input[name="board_lodging"]:checked').value === 'Yes');
-    updateDailyWage();
-});
+    // Initialize address field visibility based on current employee data
+    const boardLodgingRadios = document.querySelectorAll('input[name="board_lodging"]');
+    let currentBoardLodging = '';
+    boardLodgingRadios.forEach(radio => {
+        if (radio.checked) {
+            currentBoardLodging = radio.value;
+        }
+    });
+    toggleAddress(currentBoardLodging === 'Yes');
+    
+    updateDailyWage(); // Set default wage if Permanent is selected and calculate
+}
 </script>
 
 </body>

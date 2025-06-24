@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: authentication.php");
+    exit();
+}
+
 include 'db.php'; // your DB connection
 
 $ids_string = $_GET['ids'] ?? null;
@@ -20,7 +26,7 @@ $stmt->bind_param($types, ...$ids);
 
 if ($stmt->execute()) {
     // Redirect back to list after successful deletion
-    header("Location: index.php");
+    header("Location: dashboard.php");
     exit();
 } else {
     echo "Error deleting employee: " . $stmt->error;

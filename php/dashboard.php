@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: authentication.php");
+    exit();
+}
+
 include 'db.php';
 $sql = "SELECT * FROM `employee_info`";
 $result = $conn->query($sql);
@@ -20,15 +26,9 @@ $result = $conn->query($sql);
 </head>
 <body>
 
-<div class="circle small"></div>
-<div class="circle small two"></div>
-<div class="circle medium"></div>
-<div class="circle medium three"></div>
-<div class="circle large"></div>
-
 <div id="header_container">
   <div id="header_text" class="controls">
-<img src="../images/logo.png" alt="Company Logo" class="logo">
+    <img src="../images/logo.png" alt="Company Logo" class="logo">
     <h1 id="the_text">Employee List</h1>
   </div>
 
@@ -38,18 +38,6 @@ $result = $conn->query($sql);
         <i id="add_icon" class="fa-solid fa-user-plus fa-2x"></i>
       </a>
       <span>Add</span>
-    </div>
-    <div class="icon_label">
-      <button id="edit_btn" class="icon_btn" onclick="editSelected()">
-        <i id="i_hover" class="fa-solid fa-user-pen fa-2x"></i>
-      </button>
-      <span>Edit</span>
-    </div>
-    <div class="icon_label">
-      <button id="delete_btn" class="icon_btn" onclick="enterDeleteMode()">
-        <i id="i_hover" class="fa-solid fa-user-slash fa-2x"></i>
-      </button>
-      <span>Delete</span>
     </div>
     <div class="icon_label">
       <button id="export_btn" class="btn export-btn" onclick="export1()">
@@ -63,8 +51,6 @@ $result = $conn->query($sql);
       </a>
       <span>Logout</span>
     </div>
-    <div>
-      <button type="button" id="deselect_btn" onclick="deselectAll()">Deselect All</button>
     </div>
   </div>
 </div>
@@ -81,6 +67,7 @@ $result = $conn->query($sql);
           <th>Status</th>
           <th>Board & Lodging</th>
           <th>Food Allowance</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -92,6 +79,10 @@ $result = $conn->query($sql);
             <td><?= htmlspecialchars($row['status']) ?></td>
             <td><?= $row['board_lodging'] === 'Yes' ? htmlspecialchars($row['lodging_address']) : 'No' ?></td>
             <td><?= htmlspecialchars($row['food_allowance']) ?></td>
+            <td>
+              <a href="edit.php?id=<?= $row['id'] ?>" class="action-edit-btn">Edit</a>
+              <a href="delete.php?ids=<?= $row['id'] ?>" class="action-delete-btn" onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
+            </td>
           </tr>
         <?php endwhile; ?>
       </tbody>
@@ -102,69 +93,26 @@ $result = $conn->query($sql);
 <?php endif; ?>
 
 <script>
-  let mode = 'single'; // can be 'single' or 'multiple'
   const selectedRows = new Set();
 
   document.querySelectorAll('tbody tr').forEach(row => {
     row.addEventListener('click', () => {
       const id = row.getAttribute('data-id');
 
-      if (mode === 'single') {
-        if (selectedRows.has(id)) {
-          row.classList.remove('selected');
-          selectedRows.clear();
-        } else {
-          clearSelections();
-          row.classList.add('selected');
-          selectedRows.add(id);
-        }
-      } else if (mode === 'multiple') {
-        if (selectedRows.has(id)) {
-          selectedRows.delete(id);
-          row.classList.remove('selected');
-        } else {
-          selectedRows.add(id);
-          row.classList.add('selected');
-        }
+      if (selectedRows.has(id)) {
+        row.classList.remove('selected');
+        selectedRows.clear();
+      } else {
+        clearSelections();
+        row.classList.add('selected');
+        selectedRows.add(id);
       }
 
       updateSelectedInput();
     });
   });
 
-  function updateSelectedInput() {
-    document.getElementById('selected_ids').value = Array.from(selectedRows).join(',');
-  }
-
-  function clearSelections() {
-    selectedRows.clear();
-    document.querySelectorAll('tr.selected').forEach(row => row.classList.remove('selected'));
-    updateSelectedInput();
-  }
-
-  function editSelected() {
-    if (selectedRows.size === 1) {
-      const id = Array.from(selectedRows)[0];
-      window.location.href = `edit.php?id=${id}`;
-    } else if (selectedRows.size === 0) {
-      alert("Please select an employee to edit.");
-    } else {
-      alert("Please select only one employee to edit.");
-    }
-  }
-
-  function export1() {
-    if (selectedRows.size === 1) {
-      const id = Array.from(selectedRows)[0];
-      window.location.href = `payslip.php?id=${id}`;
-    } else if (selectedRows.size === 0) {
-      alert("Please select an employee to generate payslip.");
-    } else {
-      alert("Please select only one employee to generate payslip.");
-    }
-  }
-
-  function enterDeleteMode() {
+    function enterDeleteMode() {
     mode = 'multiple';
     document.getElementById('deselect_btn').style.display = 'inline-block';
 
@@ -180,10 +128,25 @@ $result = $conn->query($sql);
     }
   }
 
-  function deselectAll() {
-    clearSelections();
-    mode = 'single';
-    document.getElementById('deselect_btn').style.display = 'none';
+  function updateSelectedInput() {
+    document.getElementById('selected_ids').value = Array.from(selectedRows).join(',');
+  }
+
+  function clearSelections() {
+    selectedRows.clear();
+    document.querySelectorAll('tr.selected').forEach(row => row.classList.remove('selected'));
+    updateSelectedInput();
+  }
+
+  function export1() {
+    if (selectedRows.size === 1) {
+      const id = Array.from(selectedRows)[0];
+      window.location.href = `payslip.php?id=${id}`;
+    } else if (selectedRows.size === 0) {
+      alert("Please select an employee to generate payslip.");
+    } else {
+      alert("Please select only one employee to generate payslip.");
+    }
   }
 </script>
 

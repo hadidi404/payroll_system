@@ -1,4 +1,12 @@
 <?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: authentication.php");
+    exit();
+}
+
 // This file contains logic for calculating payroll rates and deductions.
 
 // Function to calculate non-taxable deductions based on hour rate

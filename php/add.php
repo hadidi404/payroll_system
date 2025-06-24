@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: authentication.php");
+    exit();
+}
+
 include 'db.php';
 include 'rates.php'; // Include the rates.php file
 
@@ -19,21 +25,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Calculations
     $gross_pay = $daily_wage_rate * $days_worked;
 
-    // Use calculateDeductions from rates.php
-    $deduction_amounts = calculateDeductions($daily_wage_rate); // Assuming daily wage is used for deduction basis
-    $sss_deduction = $deduction_amounts['sss_deduction'];
-    $pagibig_deduction = $deduction_amounts['pagibig_deduction'];
-    $philhealth_deduction = $deduction_amounts['philhealth_deduction'];
+    $deduction_amounts = calculateDeductions($daily_wage_rate);
+    $sss = $deduction_amounts['sss_deduction'];
+    $pagibig = $deduction_amounts['pagibig_deduction'];
+    $philhealth = $deduction_amounts['philhealth_deduction'];
 
-    $total_non_taxable_deductions = $sss_deduction + $pagibig_deduction + $philhealth_deduction;
+    $total_non_taxable_deductions = $sss + $pagibig + $philhealth;
 
     $tax_rate = 0; // Default 0%
     $taxable_income = $gross_pay - $total_non_taxable_deductions;
     if ($taxable_income < 0) $taxable_income = 0; // Taxable income cannot be negative
 
-    $tax_amount = $taxable_income * $tax_rate;
+    $tax = $taxable_income * $tax_rate;
 
-    $total_deductions = $total_non_taxable_deductions + $tax_amount;
+    $total_deductions = $total_non_taxable_deductions + $tax;
     $net_pay = $gross_pay - $total_deductions;
 
 
@@ -52,13 +57,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Insert into database
-    $sql = "INSERT INTO employee_info (id, name, position, status, board_lodging, lodging_address, food_allowance, daily_wage_rate, days_worked, gross_pay, sss_deduction, pagibig_deduction, philhealth_deduction, taxable_income, tax_amount, net_pay)
+    $sql = "INSERT INTO employee_info (id, name, position, status, board_lodging, lodging_address, food_allowance, daily_wage_rate, days_worked, gross_pay, sss, philhealth, pagibig, taxable_income, tax, net_pay)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssssdiddddddd",
+    $stmt->bind_param("sssssssdidddddds",
         $id, $name, $position, $status, $board_lodging, $lodging_address, $food_allowance,
-        $daily_wage_rate, $days_worked, $gross_pay, $sss_deduction, $pagibig_deduction,
-        $philhealth_deduction, $taxable_income, $tax_amount, $net_pay
+        $daily_wage_rate, $days_worked, $gross_pay, $sss, $philhealth,
+        $pagibig, $taxable_income, $tax, $net_pay
     );
 
     if ($stmt->execute()) {
@@ -74,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link href="../css/add_edit.css" rel="stylesheet">
+    <link href="../css/add.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Add Employee</title>
     <style>
@@ -141,12 +146,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
-<div class="circle small"></div>
-<div class="circle small two"></div>
-<div class="circle medium"></div>
-<div class="circle medium three"></div>
-<div class="circle large"></div>
-
 <div id="header_h">
     <a id="back" href="dashboard.php"><i class="fa-solid fa-arrow-left fa-2x"></i></a>
     <div id="description">
@@ -171,30 +170,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="toggle-group-lodging">
                 <label style="margin-top: 10px;" id="text_info_status">Status:</label>
                 <div id="toggle-group-one">
-                    <input id="blank_text" type="radio" name="status" value="Permanent" required onchange="updateDailyWage()"> 
                     <label>Permanent</label>
+                    <input style="margin-left: -80px;" id="blank_text" type="radio" name="status" value="Permanent" required onchange="updateDailyWage()"> 
                 </div>
                 <div id="toggle-group-one">
-                    <input id="blank_text" type="radio" name="status" value="On-Call" required onchange="updateDailyWage()"> 
-                    <label>On-Call</label>
+                    <label>On&#8209;Call</label>
+                    <input style="margin-left: -48px;" id="blank_text" type="radio" name="status" value="On-Call" required onchange="updateDailyWage()"> 
                 </div>
             </div>
 
             <div class="toggle-group-lodging">
                 <label style="margin-top: 10px;" id="text_info_lodging">Board & Lodging:</label>
+                <div id="yes_section">
+                    <div id="toggle-group-one">
+                        <label>Yes</label>
+                        <input style="margin-left: 161px;" id="blank_text" type="radio" name="board_lodging" value="Yes" required onchange="toggleAddress(true)"> 
+                    </div>
+                    <div id="addressField" style="margin-left: 10px;">
+                        <input type="text" name="lodging_address" id="blank_text" placeholder="Address">
+                    </div> 
+                </div>     
                 <div id="toggle-group-one">
-                    <input id="blank_text" type="radio" name="board_lodging" value="Yes" required onchange="toggleAddress(true)"> 
-                    <label>Yes</label>
-                </div>
-                <div id="toggle-group-one">
-                    <input id="blank_text" type="radio" name="board_lodging" value="No" required onchange="toggleAddress(false)"> 
                     <label>No</label>
-                </div>
-                <div id="address">
-                    <div id="addressField" style="display:none; margin-top:10px;">
-                        <input type="text" name="lodging_address" id="lodging_address" placeholder="Address">
-                    </div>  
-                </div>   
+                    <input style="margin-left: -7px;" id="blank_text" type="radio" name="board_lodging" value="No" required onchange="toggleAddress(false)"> 
+                </div>  
             </div>
 
             <label id="text_info" for="food_allowance">Food Allowance:</label>
@@ -209,10 +208,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="column">
             <h3>Payroll Details</h3>
             <label for="daily_wage_rate">Daily Minimum Wage Rate:</label>
-            <input id="daily_wage_rate" type="number" step="0.01" name="daily_wage_rate" required oninput="calculatePayroll()">
+            <input id="blank_text" type="number" step="0.01" name="daily_wage_rate" required oninput="calculatePayroll()">
 
             <label for="days_worked">Days Worked:</label>
-            <input id="days_worked" type="number" step="1" name="days_worked" value="0" required oninput="calculatePayroll()">
+            <input id="blank_text" type="number" step="1" name="days_worked" value="0" required oninput="calculatePayroll()">
 
             <h4>Deductions (Non-Taxable)</h4>
             <p>SSS (5%): <span id="sss_deduction_output">0.00</span></p>
@@ -227,7 +226,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
     </form>
-    <button type="submit" class="submit-btn" form="info">Add Employee</button>
+    <div id="submit_div">
+        <button type="submit" class="submit-btn" form="info">Add Employee</button>
+    </div>
 </div>
 
 <script>

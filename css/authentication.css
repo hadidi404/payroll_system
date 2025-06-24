@@ -73,40 +73,6 @@ input{
   box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
-.circle {
-  position: absolute;
-  border-radius: 50%;
-  background-color: #024eff;   
-  z-index: -1;               
-}
-
-.small {
-  width: 50px;
-  height: 50px;
-  top: 350px;
-  left: 300px;
-}
-
-.two{
-  width: 50px;
-  height: 50px;
-  top: 500px;
-  left: 1100px;
-}
-
-.medium {
-  width: 100px;
-  height: 100px;
-  top: 280px;
-  right: 280px;
-}
-
-.three{
-  width: 100px;
-  height: 100px;
-  top: 100px;
-  right: 1050px;
-}
 
 .login-container {
   display: flex;

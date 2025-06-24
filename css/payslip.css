@@ -113,10 +113,6 @@ tr:last-child td {
   color: black;
 }
 
-#back:hover{
-  color: #0641fb;
-}
-
 #second_container{
   display: flex;
   align-items: center;

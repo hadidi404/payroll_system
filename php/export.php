@@ -1,9 +1,12 @@
 <?php
+session_start();
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: authentication.php");
+    exit();
+}
+
 require 'db.php';
 
-// These use statements must be at the top level, outside any conditional blocks
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export'])) {
     $exportType = $_POST['export'];
@@ -30,49 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export'])) {
 
     if ($exportType === 'csv') {
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="employees.csv"');
+        header('Content-Disposition: attachment; filename="employees.csv"');//name of employee for file name
         $output = fopen('php://output', 'w');
         fputcsv($output, $headers); // Write headers
         foreach ($employees as $employee) {
             fputcsv($output, $employee); // Write each employee row
         }
         fclose($output);
-        exit;
-    }
-
-    if ($exportType === 'xlsx') {
-        if (!file_exists('vendor/autoload.php')) {
-            die("PhpSpreadsheet library not found. Please run 'composer install' in the project root.");
-        }
-        require 'vendor/autoload.php'; // PhpSpreadsheet required
-
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Write headers
-        $col = 1;
-        foreach ($headers as $header) {
-            $sheet->setCellValueByColumnAndRow($col, 1, $header);
-            $col++;
-        }
-
-        // Write data
-        $row = 2;
-        foreach ($employees as $employee) {
-            $col = 1;
-            foreach ($employee as $value) {
-                $sheet->setCellValueByColumnAndRow($col, $row, $value);
-                $col++;
-            }
-            $row++;
-        }
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="employees.xlsx"');
-        header('Cache-Control: max-age=0');
-
-        $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
         exit;
     }
 } else {
@@ -139,12 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export'])) {
         <h1>Export Employee Data</h1>
         <form id="export-form" action="export.php" method="POST">
             <div class="export-buttons">
-                <button type="submit" name="export" value="csv">
-                    <i class="fa-solid fa-file-csv"></i> Export as CSV
-                </button>
-                <button type="submit" name="export" value="xlsx">
-                    <i class="fa-solid fa-file-excel"></i> Export as Excel
-                </button>
             </div>
         </form>
     </div>
