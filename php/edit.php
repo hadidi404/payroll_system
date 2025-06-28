@@ -35,16 +35,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $daily_wage_rate = (float)$_POST['daily_wage_rate'];
     $days_worked = (float)$_POST['days_worked'];
 
-    $gross_pay = $daily_wage_rate * $days_worked;
+    $daily_wage_rate = (float)$_POST['daily_wage_rate'];
+    $days_worked = (float)$_POST['days_worked'];
 
-    $total_non_taxable_deductions = $employee['sss'] + $employee['philhealth'] + $employee['pagibig'];
+    // Use the calculateDeductions function from rates.php for all payroll calculations
+    $payroll_calculations = calculateDeductions($daily_wage_rate, $days_worked);
 
-    $taxable_income = $gross_pay - $total_non_taxable_deductions;
-    if ($taxable_income < 0) $taxable_income = 0;
-
-    $tax = $taxable_income * 0;
-    $total_deductions = $total_non_taxable_deductions + $tax;
-    $net_pay = $gross_pay - $total_deductions;
+    $gross_pay = $payroll_calculations['gross_pay'];
+    $sss = $payroll_calculations['sss_deduction'];
+    $pagibig = $payroll_calculations['pagibig_deduction'];
+    $philhealth = $payroll_calculations['philhealth_deduction'];
+    $total_non_taxable_deductions = $payroll_calculations['total_non_taxable_deductions'];
+    $taxable_income = $payroll_calculations['taxable_income'];
+    $tax = $payroll_calculations['tax'];
+    $net_pay = $payroll_calculations['net_pay'];
 
     $update_sql = "UPDATE employee_info SET 
         name = ?, 
@@ -67,8 +71,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $update_stmt = $conn->prepare($update_sql);
     $update_stmt->bind_param("sssssssdiddddds",
         $name, $position, $status, $board_lodging, $lodging_address, $food_allowance,
-        $daily_wage_rate, $days_worked, $gross_pay, $employee['sss'], $employee['philhealth'],
-        $employee['pagibig'], $taxable_income, $tax, $net_pay, $id
+        $daily_wage_rate, $days_worked, $gross_pay, $sss, $philhealth,
+        $pagibig, $taxable_income, $tax, $net_pay, $id
     );
 
     if ($update_stmt->execute()) {
@@ -85,68 +89,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link href="../css/edit.css" rel="stylesheet"> <!-- Changed to edit.css -->
+    <link href="../css/payroll_calculations.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Edit Employee</title>
     <style>
-        /* Basic two-column layout */
-        #parent_div {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Align items to the top */
-            gap: 20px; /* Space between columns */
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-        }
-        #info {
-            display: flex;
-            flex-direction: row; /* Arrange children in a row */
-            gap: 20px; /* Space between the two main columns */
-            width: 100%; /* Take full width of parent_div */
-            max-width: 900px; /* Limit overall width */
-        }
-        .column {
-            flex: 1; /* Each column takes equal space */
-            min-width: 300px; /* Minimum width for columns before wrapping */
-            padding: 20px;
-            border: 1px solid #ccc; /* Optional: for visualization */
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        .column label, .column input, .column select, .column .toggle-group-lodging {
-            display: block;
-            margin-bottom: 10px;
-        }
-        .column input[type="radio"] {
-            display: inline-block;
-            width: auto;
-            margin-right: 5px;
-        }
-        .column .toggle-group-lodging label {
-            display: inline; /* For radio button labels */
-        }
-        .column #addressField {
-            display: none; /* Hidden by default */
-            margin-top: 10px;
-        }
-        .column #blank_text, .column select {
-            width: calc(100% - 22px); /* Adjust for padding/border */
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .column h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        .calculation-output {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #e9e9e9;
-            border-radius: 5px;
-        }
-        .calculation-output p {
-            margin: 5px 0;
-            font-weight: bold;
-        }
+        /* Specific styles for edit.php if any, otherwise this can be empty or removed */
     </style>
 </head>
 <body>
@@ -214,10 +161,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="column">
             <h3>Payroll Details</h3>
             <label for="daily_wage_rate">Daily Minimum Wage Rate:</label>
-            <input id="blank_text" type="number" step="0.01" name="daily_wage_rate" id="daily_wage_rate" value="<?= htmlspecialchars($employee['daily_wage_rate']) ?>" required oninput="calculatePayroll()">
+            <input id="blank_text" type="number" step="0.01" name="daily_wage_rate" id="daily_wage_rate" value="<?= htmlspecialchars($employee['daily_wage_rate']) ?>" required>
 
             <label for="days_worked">Days Worked:</label>
-            <input id="blank_text" type="number" step="1" name="days_worked" id="days_worked" value="<?= htmlspecialchars($employee['days_worked']) ?>" required oninput="calculatePayroll()">
+            <input id="blank_text" type="number" step="1" name="days_worked" id="days_worked" value="<?= htmlspecialchars($employee['days_worked']) ?>" required>
+
+            <button type="button" onclick="calculatePayroll()">Compute</button>
 
             <h4>Deductions (Non-Taxable)</h4>
             <p>SSS (5%): <span id="sss_deduction_output">0.00</span></p>
@@ -237,89 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
-<script>
-function toggleAddress(show) {
-    const addressField = document.getElementById('addressField');
-    const lodgingAddressInput = document.getElementById('lodging_address');
-    if (show) {
-        addressField.style.display = 'flex';
-        lodgingAddressInput.setAttribute('required', 'required');
-    } else {
-        addressField.style.display = 'none';
-        lodgingAddressInput.removeAttribute('required');
-    }
-}
-
-function updateDailyWage() {
-    const statusRadios = document.querySelectorAll('input[name="status"]');
-    const dailyWageInput = document.getElementById('daily_wage_rate');
-    let selectedStatus = '';
-
-    statusRadios.forEach(radio => {
-        if (radio.checked) {
-            selectedStatus = radio.value;
-        }
-    });
-
-    if (selectedStatus === 'Permanent') {
-        dailyWageInput.value = 800.00;
-    } else if (selectedStatus === 'On-Call') {
-        dailyWageInput.value = '';
-    }
-    calculatePayroll(); // Recalculate when status changes
-}
-
-function calculatePayroll() {
-    const dailyWage = parseFloat(document.getElementById('daily_wage_rate').value) || 0;
-    const daysWorked = parseFloat(document.getElementById('days_worked').value) || 0;
-
-    const grossPay = dailyWage * daysWorked;
-
-    // Deductions (based on daily wage for simplicity, adjust if monthly basis is needed)
-    // Note: The PHP calculateDeductions function assumes monthly_salary = hour_rate * 160.
-    // For this JS, we'll use dailyWage * 20 (approx working days in a month) as a proxy for monthly basis for deductions.
-    // This needs to be consistent with the PHP side.
-    const monthlyBasisForDeductions = dailyWage * 20; // Assuming 20 working days for monthly deduction basis
-
-    const sssDeduction = monthlyBasisForDeductions * 0.05;
-    const pagibigDeduction = monthlyBasisForDeductions * 0.02;
-    const philhealthDeduction = monthlyBasisForDeductions * 0.025;
-
-    const totalNonTaxableDeductions = sssDeduction + pagibigDeduction + philhealthDeduction;
-
-    const taxRate = 0; // Default 0%
-    let taxableIncome = grossPay - totalNonTaxableDeductions;
-    if (taxableIncome < 0) taxableIncome = 0;
-
-    const taxAmount = taxableIncome * taxRate;
-
-    const totalDeductions = totalNonTaxableDeductions + taxAmount;
-    const netPay = grossPay - totalDeductions;
-
-    document.getElementById('sss_deduction_output').textContent = sssDeduction.toFixed(2);
-    document.getElementById('pagibig_deduction_output').textContent = pagibigDeduction.toFixed(2);
-    document.getElementById('philhealth_deduction_output').textContent = philhealthDeduction.toFixed(2);
-    document.getElementById('total_non_taxable_deductions_output').textContent = totalNonTaxableDeductions.toFixed(2);
-    document.getElementById('gross_pay_output').textContent = grossPay.toFixed(2);
-    document.getElementById('taxable_income_output').textContent = taxableIncome.toFixed(2);
-    document.getElementById('net_pay_output').textContent = netPay.toFixed(2);
-}
-
-// Initial calculation on page load
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize address field visibility based on current employee data
-    const boardLodgingRadios = document.querySelectorAll('input[name="board_lodging"]');
-    let currentBoardLodging = '';
-    boardLodgingRadios.forEach(radio => {
-        if (radio.checked) {
-            currentBoardLodging = radio.value;
-        }
-    });
-    toggleAddress(currentBoardLodging === 'Yes');
-    
-    updateDailyWage(); // Set default wage if Permanent is selected and calculate
-}
-</script>
+<script src="../js/payroll_calculations.js"></script>
 
 </body>
 </html>
