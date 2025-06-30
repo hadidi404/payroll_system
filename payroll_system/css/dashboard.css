@@ -1,0 +1,235 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+}
+
+span{
+  font-family: "Montserrat", sans-serif;
+}
+
+h1{
+  font-family: "Montserrat", sans-serif;
+}
+
+table, td, th {
+  font-family: 'Montserrat', sans-serif;
+}
+
+tr.selected {
+  background-color: #cce5ff !important;
+}
+
+tr:hover {
+  cursor: pointer;
+  background-color: #f1f1f1;
+}
+
+#deselect_btn {
+  display: none;
+  margin: 10px;
+  padding: 5px 10px;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#deselect_btn:hover{
+  background-color: #0641fb;
+}
+
+.logo {
+  margin-right: 20px;
+  margin-top: 6px;
+  width: 70px;       /* adjust as needed */
+  height: 70px;      /* same as width for a circle */
+  border-radius: 50%; /* makes it round */
+  object-fit: cover;  /* ensures image fills the circle */
+  object-position: 20% center;
+  border: 2px solid #000000; /* optional border */
+}
+
+#header_text{
+  display: flex;
+  height: auto;
+  width: fit-content;
+}
+
+#the_text {
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+
+#btn_actions{
+  display: flex;
+  margin-left: 800px;
+  gap: 20px;
+  width: fit-content; /* Adjust width to fit content */
+}
+
+#header_container {
+  display: flex;
+  height: 100px;
+  align-items: center;
+  width: 100%;
+  border-bottom: 3px solid black;
+}
+
+.action-edit-btn, .action-delete-btn {
+  display: inline-block; /* Allows setting width and height */
+  width: 70px; /* Fixed width */
+  height: 25px; /* Fixed height */
+  line-height: 25px; /* Vertically center text */
+  padding: 0; /* Remove padding as height is fixed */ 
+  border: 1px solid; /* Thinner border */
+  background-color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none; /* Ensure links don't have underlines */
+  font-weight: normal; /* Not bold */
+}
+
+.action-edit-btn {
+  color: #0641fb;
+  border-color: #0641fb;
+  text-align: center; /* Center the text within the button */
+  margin-right: 10px; /* Add a gap of 10px to the right */
+}
+
+.action-edit-btn:hover {
+  background-color: #0641fb;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+.action-delete-btn {
+  color: red;
+  border-color: red;
+  text-align: center; /* Center the text within the button */
+}
+
+.action-delete-btn:hover {
+  background-color: red;
+  color: white;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+
+
+body { 
+  font-family: 'Montserrat', sans-serif; 
+  background: #f8f9fa; }
+  
+h1 { text-align: center; }
+
+table {
+  font-family: 'Montserrat', sans-serif; 
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  border-collapse: collapse;
+  width: 90%;
+  background-color: #fff;
+}
+
+th, td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* Center content in the last column (Actions column) */
+table.employee_table td:last-child {
+  text-align: center;
+}
+
+th {
+  background-color: #343a40;
+  color: #fff;
+}
+
+tr:nth-child(even) { 
+  background-color: #f2f2f2; }
+
+.icon_label {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;    
+  justify-content: center;
+  font-size: 10px;
+  color: #000000;
+  cursor: pointer;
+}
+
+#add_btn {
+  margin-left: 10px;
+  height: 30px;
+  cursor: pointer;
+  color: #000000;
+}
+
+#add_btn:hover{
+  color: #024eff;
+}
+
+#add_icon{
+  font-size: 26.5px;
+}
+
+#add_icon:hover{
+  color: #024eff;
+}
+
+#i_hover:hover{
+  color: #024eff;
+}
+
+#edit_btn {
+  margin-left: 10px;
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+#delete_btn {
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+#export_btn {
+  margin-left: 10px;
+  height: 30px;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+#logout_btn{
+  height: 30px;
+  cursor: pointer;
+  color: #000000;
+}
+
+.icon-btn {
+  background: none;
+  color: #003366;
+  size: 40px;
+  cursor: pointer;
+}
+
+
+#header_container {
+  display: flex;
+  height: 100px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border-bottom: 3px solid black;
+}
