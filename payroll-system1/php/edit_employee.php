@@ -5,18 +5,22 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-include 'db.php';
+include('db.php');
+if ($_SERVER["REQUEST_METHOD"] === "GET" && !isset($_GET['id'])) {
+    echo "Employee ID not provided in URL.";
+    exit;
+}
 
 // Fetch employee data
-if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['employee_id'])) {
-    $employee_id = $_GET['employee_id'];
+if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['id'])) {
+    $employee_id = $_GET['id'];
 
     $stmt = $conn->prepare("SELECT * FROM employee_info WHERE employee_id = ?");
     $stmt->bind_param("i", $employee_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $employee = $result->fetch_assoc();
-    $stmt->close();
+    $stmt->close(); 
 
     if (!$employee) {
         die("Employee not found.");

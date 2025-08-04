@@ -13,3 +13,16 @@ document.querySelectorAll('.hours, .rate').forEach(input => {
         }
     });
 });
+
+ function toggleLodgingAddress(value, inputId) {
+        document.getElementById(inputId).style.display = (value === "Yes") ? "block" : "none";
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const lodgingSelect = document.querySelector('select[name="board_lodging"]');
+        toggleLodgingAddress(lodgingSelect.value, 'edit_lodging_input');
+    });
+
+        function toggleLodgingAddress(value) {
+        document.getElementById("lodging_input").style.display = value === "Yes" ? "block" : "none";
+    }

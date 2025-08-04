@@ -8,29 +8,29 @@
 </head>
 <body>
 
-<div class="container">
-    <div id="second_container">
+<div class="first_container">
         <a id="back" href="dashboard.php"><i class="fa-solid fa-arrow-left fa-2x"></i></a>
         <div class="export-buttons">
             <form method="post" action="export.php" id="export-form">
                 <input type="hidden" name="employee_id" value="<?= htmlspecialchars($value['employee_id']) ?>">
-                <button class="export" type="submit" name="export" value="csv">Export as CSV</button>
+                <button class="export" type="submit" name="export" title="Export Payslip" value="csv"><i class="fa-solid fa-file-export fa-2x"></i></button>
             </form>
-        </div>
+                <button class="print" onclick="window.print()" title="Print Payslip"><i class="fa-solid fa-print fa-2x"></i></button>
     </div>
-    
+</div>
 
-    <h2>Payslip</h2>
+<div class="container">
+    
     <h2 id="text">AI Korean Buffet Restaurant</h2>
     <h2 id="text">MH del pilar Burnham Legarda road, Baguio City, Philippines</h2>
 
     <div id="basic_info">
         <div id="first">
-            <p><strong>ID:</strong> <?= htmlspecialchars($value['employee_id']) ?></p>
+            <p class="info"><strong>ID:</strong> <?= htmlspecialchars($value['employee_id']) ?></p>
             <p><strong>Name:</strong> <?= strtoupper(htmlspecialchars($value['last_name'])) ?>, <?= htmlspecialchars($value['first_name']) ?></p>
         </div>
         <div id="second">
-            <p><strong>Position:</strong> <?= htmlspecialchars($value['position']) ?></p>
+            <p class="info"><strong>Position:</strong> <?= htmlspecialchars($value['position']) ?></p>
             <p><strong>Status:</strong> <?= htmlspecialchars($value['status']) ?></p>
         </div>
 

@@ -43,11 +43,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Error inserting default computation record: " . $stmt3->error);
     }
 
-    $stmt3->close();
-    $conn->close();
+    // Start the session if it hasn't started yet
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
-    echo "<p>Employee ID: " . htmlspecialchars($employee_id) . " added successfully with default payroll and computation values.</p>";
+    // Set a success message
+    $_SESSION['success'] = "Employee added successfully!";
+
+    // Redirect to the dashboard page
+    header("Location: dashboard.php");
+    exit();
+
 }
 ?>
-
-<?php include '../html/add.html'; ?>

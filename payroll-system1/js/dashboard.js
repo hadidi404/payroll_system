@@ -71,3 +71,34 @@ function openTab(evt, tabName) {
 
 // Set the first tab as active by default
 document.getElementsByClassName("tablinks")[0].click();
+
+// multiple pazyslip generation
+  document.getElementById("selectAllPayslips").addEventListener("change", function() {
+    const checkboxes = document.querySelectorAll(".payslipCheckbox");
+    checkboxes.forEach(cb => cb.checked = this.checked);
+  });
+
+  function generateBatchPayslips() {
+    const selected = Array.from(document.querySelectorAll(".payslipCheckbox:checked"))
+                         .map(cb => cb.value);
+
+    if (selected.length === 0) {
+      alert("Please select at least one payslip.");
+      return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '../php/batch_payslip.php';
+    form.target = '_blank';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payroll_ids';
+    input.value = JSON.stringify(selected);
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+  }
+

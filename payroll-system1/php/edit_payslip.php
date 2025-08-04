@@ -95,7 +95,14 @@ $result = $stmt->get_result();
 if ($result->num_rows === 0) die("Payroll not found.");
 $value = $result->fetch_assoc();
 
-include '../html/edit_payslip_html.php';
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+    include '../html/edit_payslip_html.php';
+    exit();
+} else {
+    // Optional: fallback if accessed directly
+    echo "<p>This endpoint is designed to be loaded into a modal.</p>";
+}
+
 $stmt->close();
 ?>
 
