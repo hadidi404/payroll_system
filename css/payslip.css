@@ -1,0 +1,190 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 50px;
+  font-family: Montserrat, sans-serif;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  border: 1px solid #ccc;
+  padding: 30px;
+  border-radius: 8px;
+} 
+
+#back {
+  color: black;
+}
+
+.first_container{
+  display: flex;
+  justify-content: center;
+}
+
+#basic_info {
+  display: flex;
+  justify-content: center;
+  gap: 150px;
+}
+
+#first {
+  display: flex;
+  flex-direction: column;
+  height: 70px;
+}
+
+#second {
+  display: flex;
+  flex-direction: column;
+  height: 70px;
+}
+
+.info{
+  margin-bottom: -10px;
+}
+
+#third {
+  display: flex;
+  flex-direction: column;
+}
+
+.export {
+  padding: 2px 4px;
+  margin: 5px;
+  color: black;
+  background-color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 480px;
+}
+
+.print{
+  padding: 2px 4px;
+  margin: 5px;
+  color: black;
+  background-color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.export:hover, .print:hover{
+  color: #0641fb;
+}
+
+button {
+  font-family: Montserrat, sans-serif;
+}
+
+h2 {
+  text-align: center;
+  font-family: Montserrat, sans-serif;
+  margin-top: -10px;
+}
+
+#text {
+  font-weight: 400;
+  font-size: medium;
+  margin-bottom: 10px;
+}
+
+h3 {
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: Montserrat, sans-serif;
+}
+
+td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 1rem;
+  color: #333;
+}
+
+td:first-child {
+  font-weight: 500;
+  width: 50%;
+}
+
+tr:last-child td {
+  background-color: #f9f9f9;
+  color: #111;
+}
+
+.total {
+  font-weight: bold;
+  font-family: Montserrat, sans-serif;
+}
+
+.export-buttons {
+  display: flex;
+  font-family: Montserrat, sans-serif;
+}
+
+.allowance_box {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.allowance_box p {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin: 0;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+
+.allowance_box p:last-child {
+  border-bottom: none;
+}
+
+@media print {
+  /* Hide everything by default */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the container and its contents */
+  .container, .container * {
+    visibility: visible;
+  }
+
+  /* Move the container to the top-left of the page */
+  .container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    border: none; /* Optional: remove border for print */
+    box-shadow: none; /* Optional: remove shadow for print */
+  }
+
+  /* Hide buttons and other elements not needed for print */
+  .export-buttons,
+  .print,
+  #back,
+  .first_container {
+    display: none !important;
+  }
+
+  /* Optional: Adjust text for printing */
+  h2, h3, td, .info {
+    color: black !important;
+  }
+}
